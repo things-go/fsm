@@ -1,6 +1,3 @@
-//go:build ignore
-// +build ignore
-
 package main
 
 import (
@@ -46,26 +43,34 @@ const (
 )
 
 func main() {
-	fsm1 := fsm.New(
+	f := fsm.New(
 		IsClosed,
 		fsm.Transforms[MyEvent, MyState]{
 			{Event: Open, Src: []MyState{IsClosed}, Dst: IsOpen},
 			{Event: Close, Src: []MyState{IsOpen}, Dst: IsClosed},
 		},
 	)
-	fmt.Println(fsm1.Current())
-	err := fsm1.Trigger(Open)
+	fmt.Println(f.Current())
+	err := f.Trigger(Open)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(fsm1.Current())
-	err = fsm1.Trigger(Close)
+	fmt.Println(f.Current())
+	err = f.Trigger(Close)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(fsm1.Current())
+	fmt.Println(f.Current())
 	// Output:
 	// closed
-	// open
+	// opened
 	// closed
+	fmt.Println(fsm.Visualize(f))
+	// digraph fsm {
+	//    "closed" -> "opened" [ label = "open" ];
+	//    "opened" -> "closed" [ label = "close" ];
+	//
+	//    "closed";
+	//    "opened";
+	// }
 }
