@@ -12,7 +12,7 @@ import (
 func main() {
 	fsm1 := fsm.New(
 		"idle",
-		fsm.Transitions[string, string]{
+		fsm.Transforms[string, string]{
 			{Event: "produce", Src: []string{"idle"}, Dst: "idle"},
 			{Event: "consume", Src: []string{"idle"}, Dst: "idle"},
 		},

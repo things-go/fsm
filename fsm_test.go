@@ -9,7 +9,7 @@ import (
 func TestClone(t *testing.T) {
 	fsm := New(
 		"close",
-		Transitions[string, string]{
+		Transforms[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
 			{Event: "close", Src: []string{"open"}, Dst: "closed"},
 		},
@@ -28,7 +28,7 @@ func TestClone(t *testing.T) {
 func TestSameState(t *testing.T) {
 	fsm := New(
 		"start",
-		Transitions[string, string]{
+		Transforms[string, string]{
 			{Event: "run", Src: []string{"start"}, Dst: "start"},
 		},
 	)
@@ -44,7 +44,7 @@ func TestSameState(t *testing.T) {
 func TestState(t *testing.T) {
 	fsm := New(
 		"walking",
-		Transitions[string, string]{
+		Transforms[string, string]{
 			{Event: "walk", Src: []string{"start"}, Dst: "walking"},
 		},
 	)
@@ -68,7 +68,7 @@ func TestState(t *testing.T) {
 func TestAvailTransitionEvent(t *testing.T) {
 	fsm := New(
 		"closed",
-		Transitions[string, string]{
+		Transforms[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
 			{Event: "close", Src: []string{"open"}, Dst: "closed"},
 			{Event: "middle", Src: []string{"closed"}, Dst: "middle"},
@@ -84,7 +84,7 @@ func TestAvailTransitionEvent(t *testing.T) {
 func TestInappropriateEvent(t *testing.T) {
 	fsm := New(
 		"closed",
-		Transitions[string, string]{
+		Transforms[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
 			{Event: "close", Src: []string{"open"}, Dst: "closed"},
 		},
@@ -99,7 +99,7 @@ func TestInappropriateEvent(t *testing.T) {
 func TestNonExistEvent(t *testing.T) {
 	fsm := New(
 		"closed",
-		Transitions[string, string]{
+		Transforms[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
 			{Event: "close", Src: []string{"open"}, Dst: "closed"},
 		},
@@ -114,7 +114,7 @@ func TestNonExistEvent(t *testing.T) {
 func TestMultipleSources(t *testing.T) {
 	fsm := New(
 		"one",
-		Transitions[string, string]{
+		Transforms[string, string]{
 			{Event: "first", Src: []string{"one"}, Dst: "two"},
 			{Event: "second", Src: []string{"two"}, Dst: "three"},
 			{Event: "reset", Src: []string{"one", "two", "three"}, Dst: "one"},
@@ -158,7 +158,7 @@ func TestMultipleSources(t *testing.T) {
 func TestMultipleEvents(t *testing.T) {
 	fsm := New(
 		"start",
-		Transitions[string, string]{
+		Transforms[string, string]{
 			{Event: "first", Src: []string{"start"}, Dst: "one"},
 			{Event: "second", Src: []string{"start"}, Dst: "two"},
 			{Event: "reset", Src: []string{"one"}, Dst: "reset_one"},

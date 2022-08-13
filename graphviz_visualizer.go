@@ -12,11 +12,11 @@ func Visualize[E constraints.Ordered, S constraints.Ordered](fsm *FSM[E, S]) str
 	var buf bytes.Buffer
 
 	// we sort the key alphabetically to have a reproducible graph output
-	sortedEKeys := getSortedTransitionKeys(fsm.transitions)
-	sortedStateKeys, _ := getSortedStates(fsm.transitions)
+	sortedEKeys := getSortedTransitionKeys(fsm.translator)
+	sortedStateKeys, _ := getSortedStates(fsm.translator)
 
 	writeHeaderLine(&buf)
-	writeTransitions(&buf, fsm.current, sortedEKeys, fsm.transitions)
+	writeTransitions(&buf, fsm.current, sortedEKeys, fsm.translator)
 	writeStates(&buf, sortedStateKeys)
 	writeFooter(&buf)
 

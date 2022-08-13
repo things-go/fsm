@@ -15,41 +15,41 @@ type FSM[E constraints.Ordered, S constraints.Ordered] struct {
 	// stateMu guards access to the current state.
 	stateMu sync.RWMutex
 
-	// transitions maps events and source states to destination states.
+	// translator maps events and source states to destination states.
 	// This is immutable
-	transitions TransitionsMap[E, S]
+	translator Translator[E, S]
 }
 
 // New constructs a generic FSM with an initial state S, for events E.
 // E is the event type
 // S is the state type.
-func New[E constraints.Ordered, S constraints.Ordered](initState S, transitions Transitions[E, S]) *FSM[E, S] {
-	return NewFromTransitions(initState, NewTransitions[E, S](transitions))
+func New[E constraints.Ordered, S constraints.Ordered](initState S, transitions Transforms[E, S]) *FSM[E, S] {
+	return NewFromTransitions(initState, NewTranslator[E, S](transitions))
 }
 
 // NewFromTransitions constructs a generic FSM with an initial state S, for events E.
 // E is the event type
 // S is the state type.
-func NewFromTransitions[E constraints.Ordered, S constraints.Ordered](initState S, ts TransitionsMap[E, S]) *FSM[E, S] {
+func NewFromTransitions[E constraints.Ordered, S constraints.Ordered](initState S, ts Translator[E, S]) *FSM[E, S] {
 	return &FSM[E, S]{
-		current:     initState,
-		transitions: ts,
+		current:    initState,
+		translator: ts,
 	}
 }
 
 // Clone the FSM.
 func (f *FSM[E, S]) Clone() *FSM[E, S] {
 	return &FSM[E, S]{
-		current:     f.current,
-		transitions: f.transitions,
+		current:    f.current,
+		translator: f.translator,
 	}
 }
 
 // CloneWithNewState clone the FSM with new state.
 func (f *FSM[E, S]) CloneWithState(newState S) *FSM[E, S] {
 	return &FSM[E, S]{
-		current:     newState,
-		transitions: f.transitions,
+		current:    newState,
+		translator: f.translator,
 	}
 }
 
@@ -76,13 +76,13 @@ func (f *FSM[E, S]) SetState(state S) {
 
 // IsCan returns true if event can occur in the current state.
 func (f *FSM[E, S]) IsCan(event E) bool {
-	return f.transitions.IsCan(event, f.current)
+	return f.translator.IsCan(event, f.current)
 }
 
 // AvailTransitionEvent returns a list of available transition event in the
 // current state.
 func (f *FSM[E, S]) AvailTransitionEvent() []E {
-	return f.transitions.AvailTransitionEvent(f.current)
+	return f.translator.AvailTransitionEvent(f.current)
 }
 
 // Trigger call a state transition with the named event.
@@ -93,7 +93,7 @@ func (f *FSM[E, S]) AvailTransitionEvent() []E {
 //
 // - event X does not exist
 func (f *FSM[E, S]) Trigger(event E) error {
-	dst, err := f.transitions.Trigger(event, f.current)
+	dst, err := f.translator.Trigger(event, f.current)
 	if err != nil {
 		return err
 	}
