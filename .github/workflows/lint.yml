@@ -6,12 +6,13 @@ on:
       - '**.md'
 
 jobs:
-  golangci:
-    name: Golangci-Lint
+  golang-ci:
+    name: GolangCi-Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3
-        with:
-          args: -E goimports -E gocritic -E misspell
+        with: # BUG: typecheck error when enable all
+          args: --disable-all -E goimports,misspell,whitespace
+          version: latest
