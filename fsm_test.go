@@ -49,6 +49,13 @@ func TestState(t *testing.T) {
 		},
 	)
 
+	if !fsm.HasEvent("walk") {
+		t.Error("expected support event 'walk'")
+	}
+	if fsm.HasEvent("nosupport") {
+		t.Error("expected not support event 'nosupport'")
+	}
+
 	fsm.SetState("start")
 	if fsm.Current() != "start" {
 		t.Error("expected state to be 'start'")

@@ -68,6 +68,16 @@ func (ts Translator[E, S]) AvailTransitionEvent(srcState S) []E {
 	return events
 }
 
+// HasEvent returns true if event has supported.
+func (ts Translator[E, S]) HasEvent(event E) bool {
+	for key := range ts {
+		if key.event == event {
+			return true
+		}
+	}
+	return true
+}
+
 // Trigger return dst state transition with the named event and src state.
 //
 // It will return nil if src state change to dst state success or one of these errors:

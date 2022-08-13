@@ -85,13 +85,18 @@ func (f *FSM[E, S]) AvailTransitionEvent() []E {
 	return f.translator.AvailTransitionEvent(f.current)
 }
 
+// HasEvent returns true if event has supported.
+func (f *FSM[E, S]) HasEvent(event E) bool {
+	return f.translator.HasEvent(event)
+}
+
 // Trigger call a state transition with the named event.
 //
-// It will return nil if the state change is ok or one of these errors:
+// It will return nil if src state change to dst state success or one of these errors:
 //
-// - event X inappropriate in current state Y
+// - ErrInappropriateEvent: event X inappropriate in the state Y
 //
-// - event X does not exist
+// - ErrNonExistEvent: event X does not exist
 func (f *FSM[E, S]) Trigger(event E) error {
 	dst, err := f.translator.Trigger(event, f.current)
 	if err != nil {
