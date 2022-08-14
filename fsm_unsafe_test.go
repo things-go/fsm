@@ -12,10 +12,10 @@ func TestUnsafeState(t *testing.T) {
 		},
 	)
 
-	if !fsm.HasEvent("walk") {
+	if !fsm.ContainEvent("walk") {
 		t.Error("expected support event 'walk'")
 	}
-	if fsm.HasEvent("nosupport") {
+	if fsm.ContainEvent("nosupport") {
 		t.Error("expected not support event 'nosupport'")
 	}
 

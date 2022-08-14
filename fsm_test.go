@@ -45,14 +45,21 @@ func TestState(t *testing.T) {
 		"walking",
 		Transforms[string, string]{
 			{Event: "walk", Src: []string{"start"}, Dst: "walking"},
+			{Event: "look", Src: []string{"walking"}, Dst: "walking"},
 		},
 	)
 
-	if !fsm.HasEvent("walk") {
+	if !fsm.ContainEvent("walk") {
 		t.Error("expected support event 'walk'")
 	}
-	if fsm.HasEvent("nosupport") {
+	if fsm.ContainEvent("nosupport") {
 		t.Error("expected not support event 'nosupport'")
+	}
+	if !fsm.ContainAllEvent("walk", "look") {
+		t.Error("expected support all event 'walk' and 'look'")
+	}
+	if fsm.ContainAllEvent("walk", "nosupport") {
+		t.Error("expected support all event 'walk' and 'nosupport'")
 	}
 
 	fsm.SetState("start")
@@ -81,9 +88,14 @@ func TestAvailTransitionEvent(t *testing.T) {
 		},
 	)
 	events := fsm.AvailTransitionEvent()
-
 	if !(slices.Contains(events, "middle") && slices.Contains(events, "open")) {
 		t.Error("expected contain [middle, open] event with current state")
+	}
+	if !fsm.IsAllCan("middle", "open") {
+		t.Error("expected contain all [middle, open] event with current state")
+	}
+	if fsm.IsAllCan("open", "close") {
+		t.Error("expected not contain all [middle, open] event with current state")
 	}
 }
 
@@ -100,6 +112,11 @@ func TestInappropriateEvent(t *testing.T) {
 	if err != ErrInappropriateEvent {
 		t.Error("expected 'ErrInappropriateEvent' with correct state and event")
 	}
+	historyState := fsm.Current()
+	fsm.ShouldTrigger("close")
+	if historyState != fsm.Current() {
+		t.Error("ShouldTrigger expected hold original state with correct event")
+	}
 }
 
 func TestNonExistEvent(t *testing.T) {
@@ -113,7 +130,12 @@ func TestNonExistEvent(t *testing.T) {
 
 	err := fsm.Trigger("lock")
 	if err != ErrNonExistEvent {
-		t.Error("expected 'ErrNonExistEvent' with correct event")
+		t.Error("expected 'ErrNonExistEvent' with incorrect event")
+	}
+	historyState := fsm.Current()
+	fsm.ShouldTrigger("lock")
+	if historyState != fsm.Current() {
+		t.Error("ShouldTrigger expected hold original state with incorrect event")
 	}
 }
 

@@ -4,6 +4,8 @@ import (
 	"errors"
 
 	"golang.org/x/exp/constraints"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 var ErrInappropriateEvent = errors.New("fsm: event inappropriate in the state")
@@ -51,41 +53,12 @@ func NewTranslator[E constraints.Ordered, S constraints.Ordered](transitions Tra
 	return ts
 }
 
-// IsCan returns true if event can occur in src state.
-func (ts Translator[E, S]) IsCan(event E, srcState S) bool {
-	_, ok := ts[eKey[E, S]{event, srcState}]
-	return ok
-}
-
-// AvailTransitionEvent returns a list of available transition event in src state.
-func (ts Translator[E, S]) AvailTransitionEvent(srcState S) []E {
-	var events []E
-	for key := range ts {
-		if key.src == srcState {
-			events = append(events, key.event)
-		}
-	}
-	return events
-}
-
-// HasEvent returns true if event has supported.
-func (ts Translator[E, S]) HasEvent(event E) bool {
-	for key := range ts {
-		if key.event == event {
-			return true
-		}
-	}
-	return false
-}
-
 // Trigger return dst state transition with the named event and src state.
-//
 // It will return nil if src state change to dst state success or one of these errors:
 //
 // - ErrInappropriateEvent: event X inappropriate in the state Y
-//
 // - ErrNonExistEvent: event X does not exist
-func (ts Translator[E, S]) Trigger(event E, srcState S) (dstState S, err error) {
+func (ts Translator[E, S]) Trigger(srcState S, event E) (dstState S, err error) {
 	var ok bool
 
 	dstState, ok = ts[eKey[E, S]{event, srcState}]
@@ -98,4 +71,70 @@ func (ts Translator[E, S]) Trigger(event E, srcState S) (dstState S, err error) 
 		return dstState, ErrNonExistEvent
 	}
 	return dstState, nil
+}
+
+// ShouldTrigger return dst state transition with the named event and src state.
+// It will return if src state change to dst state success or holds the same as the src state:
+func (ts Translator[E, S]) ShouldTrigger(srcState S, event E) (dstState S) {
+	var err error
+
+	dstState, err = ts.Trigger(srcState, event)
+	if err != nil {
+		dstState = srcState
+	}
+	return dstState
+}
+
+// IsCan returns true if event can occur in src state.
+func (ts Translator[E, S]) IsCan(srcState S, event E) bool {
+	_, ok := ts[eKey[E, S]{event, srcState}]
+	return ok
+}
+
+// IsAllCan returns true if all the events can occur in src state.
+func (ts Translator[E, S]) IsAllCan(srcState S, events ...E) bool {
+	es := ts.AvailTransitionEvent(srcState)
+
+	for _, event := range events {
+		if !slices.Contains(es, event) {
+			return false
+		}
+	}
+	return true
+}
+
+// AvailTransitionEvent returns a list of available transition event in src state.
+func (ts Translator[E, S]) AvailTransitionEvent(srcState S) []E {
+	es := make(map[E]struct{})
+	for key := range ts {
+		if key.src == srcState {
+			es[key.event] = struct{}{}
+		}
+	}
+	return maps.Keys(es)
+}
+
+// ContainEvent returns true if support the event.
+func (ts Translator[E, S]) ContainEvent(event E) bool {
+	for key := range ts {
+		if key.event == event {
+			return true
+		}
+	}
+	return false
+}
+
+// ContainAllEvent returns true if support all event.
+func (ts Translator[E, S]) ContainAllEvent(events ...E) bool {
+	es := make(map[E]struct{})
+	for key := range ts {
+		es[key.event] = struct{}{}
+	}
+	for _, event := range events {
+		_, ok := es[event]
+		if !ok {
+			return false
+		}
+	}
+	return true
 }

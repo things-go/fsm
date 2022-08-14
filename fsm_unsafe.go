@@ -72,7 +72,7 @@ func (f *FSMUnsafe[E, S]) SetState(state S) {
 //
 // - ErrNonExistEvent: event X does not exist
 func (f *FSMUnsafe[E, S]) Trigger(event E) error {
-	dst, err := f.translator.Trigger(event, f.current)
+	dst, err := f.translator.Trigger(f.current, event)
 	if err != nil {
 		return err
 	}
@@ -80,9 +80,20 @@ func (f *FSMUnsafe[E, S]) Trigger(event E) error {
 	return nil
 }
 
+// ShouldTrigger return dst state transition with the named event and src state.
+// It will return if src state change to dst state success or holds the same as the current state:
+func (f *FSMUnsafe[E, S]) ShouldTrigger(event E) {
+	f.current = f.translator.ShouldTrigger(f.current, event)
+}
+
 // IsCan returns true if event can occur in the current state.
 func (f *FSMUnsafe[E, S]) IsCan(event E) bool {
-	return f.translator.IsCan(event, f.current)
+	return f.translator.IsCan(f.current, event)
+}
+
+// IsAllCan returns true if all the events can occur in src state.
+func (f *FSMUnsafe[E, S]) IsAllCan(event ...E) bool {
+	return f.translator.IsAllCan(f.current, event...)
 }
 
 // AvailTransitionEvent returns a list of available transition event in the
@@ -91,7 +102,12 @@ func (f *FSMUnsafe[E, S]) AvailTransitionEvent() []E {
 	return f.translator.AvailTransitionEvent(f.current)
 }
 
-// HasEvent returns true if event has supported.
-func (f *FSMUnsafe[E, S]) HasEvent(event E) bool {
-	return f.translator.HasEvent(event)
+// ContainEvent returns true if support the event.
+func (f *FSMUnsafe[E, S]) ContainEvent(event E) bool {
+	return f.translator.ContainEvent(event)
+}
+
+// ContainAllEvent returns true if support all event.
+func (f *FSMUnsafe[E, S]) ContainAllEvent(events ...E) bool {
+	return f.translator.ContainAllEvent(events...)
 }

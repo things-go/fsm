@@ -70,19 +70,20 @@ func (f *FSM[E, S]) SetState(state S) {
 }
 
 // Trigger call a state transition with the named event.
-//
 // It will return nil if src state change to dst state success or one of these errors:
 //
 // - ErrInappropriateEvent: event X inappropriate in the state Y
-//
 // - ErrNonExistEvent: event X does not exist
 func (f *FSM[E, S]) Trigger(event E) error {
-	dst, err := f.translator.Trigger(event, f.current)
-	if err != nil {
-		return err
-	}
 	f.stateMu.Lock()
 	defer f.stateMu.Unlock()
-	f.FSMUnsafe.SetState(dst)
-	return nil
+	return f.FSMUnsafe.Trigger(event)
+}
+
+// ShouldTrigger return dst state transition with the named event and src state.
+// It will return if src state change to dst state success or holds the same as the current state:
+func (f *FSM[E, S]) ShouldTrigger(event E) {
+	f.stateMu.Lock()
+	defer f.stateMu.Unlock()
+	f.FSMUnsafe.ShouldTrigger(event)
 }
