@@ -75,7 +75,7 @@ func (ts Translator[E, S]) HasEvent(event E) bool {
 			return true
 		}
 	}
-	return true
+	return false
 }
 
 // Trigger return dst state transition with the named event and src state.
