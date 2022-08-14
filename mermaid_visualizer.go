@@ -1,8 +1,8 @@
 package fsm
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 
 	"golang.org/x/exp/constraints"
 )
@@ -32,7 +32,7 @@ func VisualizeForMermaidWithGraphType[E constraints.Ordered, S constraints.Order
 }
 
 func visualizeForMermaidAsStateDiagram[E constraints.Ordered, S constraints.Ordered](fsm *FSM[E, S]) string {
-	var buf bytes.Buffer
+	var buf strings.Builder
 
 	sortedTransitionKeys := getSortedTransitionKeys(fsm.translator)
 
@@ -50,7 +50,7 @@ func visualizeForMermaidAsStateDiagram[E constraints.Ordered, S constraints.Orde
 
 // visualizeForMermaidAsFlowChart outputs a visualization of a FSM in Mermaid format (including highlighting of current state).
 func visualizeForMermaidAsFlowChart[E constraints.Ordered, S constraints.Ordered](fsm *FSM[E, S]) string {
-	var buf bytes.Buffer
+	var buf strings.Builder
 
 	sortedTransitionKeys := getSortedTransitionKeys(fsm.translator)
 	sortedStates, statesToIDMap := getSortedStates(fsm.translator)
@@ -63,11 +63,11 @@ func visualizeForMermaidAsFlowChart[E constraints.Ordered, S constraints.Ordered
 	return buf.String()
 }
 
-func writeFlowChartGraphType(buf *bytes.Buffer) {
+func writeFlowChartGraphType(buf *strings.Builder) {
 	buf.WriteString("graph LR\n")
 }
 
-func writeFlowChartStates[S constraints.Ordered](buf *bytes.Buffer, sortedStates []S, statesToIDMap map[S]string) {
+func writeFlowChartStates[S constraints.Ordered](buf *strings.Builder, sortedStates []S, statesToIDMap map[S]string) {
 	for _, state := range sortedStates {
 		buf.WriteString(fmt.Sprintf(`    %s[%v]`, statesToIDMap[state], state))
 		buf.WriteString("\n")
@@ -76,7 +76,7 @@ func writeFlowChartStates[S constraints.Ordered](buf *bytes.Buffer, sortedStates
 	buf.WriteString("\n")
 }
 
-func writeFlowChartTransitions[E constraints.Ordered, S constraints.Ordered](buf *bytes.Buffer, transitions map[eKey[E, S]]S, sortedTransitionKeys []eKey[E, S], statesToIDMap map[S]string) {
+func writeFlowChartTransitions[E constraints.Ordered, S constraints.Ordered](buf *strings.Builder, transitions map[eKey[E, S]]S, sortedTransitionKeys []eKey[E, S], statesToIDMap map[S]string) {
 	for _, transition := range sortedTransitionKeys {
 		target := transitions[transition]
 		buf.WriteString(fmt.Sprintf(`    %s --> |%v| %s`, statesToIDMap[transition.src], transition.event, statesToIDMap[target]))
@@ -85,7 +85,7 @@ func writeFlowChartTransitions[E constraints.Ordered, S constraints.Ordered](buf
 	buf.WriteString("\n")
 }
 
-func writeFlowChartHighlightCurrent[S constraints.Ordered](buf *bytes.Buffer, current S, statesToIDMap map[S]string) {
+func writeFlowChartHighlightCurrent[S constraints.Ordered](buf *strings.Builder, current S, statesToIDMap map[S]string) {
 	buf.WriteString(fmt.Sprintf(`    style %s fill:%s`, statesToIDMap[current], highlightingColor))
 	buf.WriteString("\n")
 }

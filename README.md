@@ -2,8 +2,6 @@
 
 Finite State Machine 
 
-
-[![GoDoc](https://godoc.org/github.com/things-go/fsm?status.svg)](https://godoc.org/github.com/things-go/fsm)
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/things-go/fsm?tab=doc)
 [![codecov](https://codecov.io/gh/things-go/fsm/branch/main/graph/badge.svg)](https://codecov.io/gh/things-go/fsm)
 [![Tests](https://github.com/things-go/fsm/actions/workflows/ci.yml/badge.svg)](https://github.com/things-go/fsm/actions/workflows/ci.yml)

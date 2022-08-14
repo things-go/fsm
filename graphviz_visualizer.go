@@ -3,13 +3,14 @@ package fsm
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	"golang.org/x/exp/constraints"
 )
 
 // Visualize outputs a visualization of a FSM in Graphviz format.
 func Visualize[E constraints.Ordered, S constraints.Ordered](fsm *FSM[E, S]) string {
-	var buf bytes.Buffer
+	var buf strings.Builder
 
 	// we sort the key alphabetically to have a reproducible graph output
 	sortedEKeys := getSortedTransitionKeys(fsm.translator)
@@ -23,38 +24,37 @@ func Visualize[E constraints.Ordered, S constraints.Ordered](fsm *FSM[E, S]) str
 	return buf.String()
 }
 
-func writeHeaderLine(buf *bytes.Buffer) {
-	buf.WriteString(`digraph fsm {`)
+func writeHeaderLine(buf *strings.Builder) {
+	buf.WriteString("digraph fsm {")
 	buf.WriteString("\n")
 }
 
-func writeTransitions[E constraints.Ordered, S constraints.Ordered](buf *bytes.Buffer, current S, sortedEKeys []eKey[E, S], transitions map[eKey[E, S]]S) {
+func writeTransitions[E constraints.Ordered, S constraints.Ordered](buf *strings.Builder, current S, sortedEKeys []eKey[E, S], transitions map[eKey[E, S]]S) {
+	b := bytes.Buffer{}
 	// make sure the current state is at top
 	for _, k := range sortedEKeys {
+		v := transitions[k]
+		line := fmt.Sprintf(`    "%v" -> "%v" [ label = "%v" ];`, k.src, v, k.event)
 		if k.src == current {
-			v := transitions[k]
-			buf.WriteString(fmt.Sprintf(`    "%v" -> "%v" [ label = "%v" ];`, k.src, v, k.event))
-			buf.WriteString("\n")
+			buf.WriteString(line)
+		} else {
+			b.WriteString(line)
 		}
+		b.WriteString("\n")
 	}
-	for _, k := range sortedEKeys {
-		if k.src != current {
-			v := transitions[k]
-			buf.WriteString(fmt.Sprintf(`    "%v" -> "%v" [ label = "%v" ];`, k.src, v, k.event))
-			buf.WriteString("\n")
-		}
+	if b.Len() > 0 {
+		buf.Write(b.Bytes())
 	}
-
 	buf.WriteString("\n")
 }
 
-func writeStates[S constraints.Ordered](buf *bytes.Buffer, sortedStateKeys []S) {
+func writeStates[S constraints.Ordered](buf *strings.Builder, sortedStateKeys []S) {
 	for _, k := range sortedStateKeys {
 		buf.WriteString(fmt.Sprintf(`    "%v";`, k))
 		buf.WriteString("\n")
 	}
 }
 
-func writeFooter(buf *bytes.Buffer) {
+func writeFooter(buf *strings.Builder) {
 	buf.WriteString(fmt.Sprintln("}"))
 }
