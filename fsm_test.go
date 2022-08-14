@@ -7,13 +7,12 @@ import (
 )
 
 func TestClone(t *testing.T) {
-	fsm := New(
-		"close",
-		Transforms[string, string]{
-			{Event: "open", Src: []string{"closed"}, Dst: "open"},
-			{Event: "close", Src: []string{"open"}, Dst: "closed"},
-		},
-	)
+	ts := NewTranslator(Transforms[string, string]{
+		{Event: "open", Src: []string{"closed"}, Dst: "open"},
+		{Event: "close", Src: []string{"open"}, Dst: "closed"},
+	})
+
+	fsm := NewFromTransitions("close", ts)
 	fsm1 := fsm.Clone()
 	if fsm1.Current() != fsm.Current() {
 		t.Errorf("expected same current state")
