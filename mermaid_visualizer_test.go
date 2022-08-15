@@ -15,7 +15,7 @@ func TestMermaidOutput(t *testing.T) {
 			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
 		},
 	)
-	got, err := VisualizeForMermaidWithGraphType(fsmUnderTest, StateDiagram)
+	got, err := VisualizeForMermaidWithGraphType[string, string](fsmUnderTest, StateDiagram)
 	if err != nil {
 		t.Errorf("got error for visualizing with type MERMAID: %s", err)
 	}
@@ -46,7 +46,7 @@ func TestMermaidFlowChartOutput(t *testing.T) {
 			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
 		},
 	)
-	got, err := VisualizeForMermaidWithGraphType(fsmUnderTest, FlowChart)
+	got, err := VisualizeForMermaidWithGraphType[string, string](fsmUnderTest, FlowChart)
 	if err != nil {
 		t.Errorf("got error for visualizing with type MERMAID: %s", err)
 	}

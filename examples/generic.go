@@ -65,7 +65,7 @@ func main() {
 	// closed
 	// opened
 	// closed
-	fmt.Println(fsm.Visualize(f))
+	fmt.Println(fsm.Visualize[MyEvent, MyState](f))
 	// digraph fsm {
 	//    "closed" -> "opened" [ label = "open" ];
 	//    "opened" -> "closed" [ label = "close" ];

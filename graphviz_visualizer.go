@@ -9,15 +9,15 @@ import (
 )
 
 // Visualize outputs a visualization of a FSM in Graphviz format.
-func Visualize[E constraints.Ordered, S constraints.Ordered](fsm *FSM[E, S]) string {
+func Visualize[E constraints.Ordered, S constraints.Ordered](fsm Visualizer[E, S]) string {
 	var buf strings.Builder
 
 	// we sort the key alphabetically to have a reproducible graph output
-	sortedEKeys := getSortedTransitionKeys(fsm.translator)
-	sortedStateKeys, _ := getSortedStates(fsm.translator)
+	sortedEKeys := getSortedTransitionKeys(fsm.Trans())
+	sortedStateKeys, _ := getSortedStates(fsm.Trans())
 
 	writeHeaderLine(&buf)
-	writeTransitions(&buf, fsm.current, sortedEKeys, fsm.translator)
+	writeTransitions(&buf, fsm.Current(), sortedEKeys, fsm.Trans())
 	writeStates(&buf, sortedStateKeys)
 	writeFooter(&buf)
 

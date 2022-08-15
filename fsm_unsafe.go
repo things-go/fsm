@@ -11,9 +11,9 @@ type FSMUnsafe[E constraints.Ordered, S constraints.Ordered] struct {
 	// current is the state that the FSMUnsafe is currently in.
 	current S
 
-	// translator maps events and source states to destination states.
+	// translator contain events and source states to destination states.
 	// This is immutable
-	translator Translator[E, S]
+	Translator[E, S]
 }
 
 // NewUnsafeFSM constructs a generic FSMUnsafe with an initial state S, for events E.
@@ -29,7 +29,7 @@ func NewUnsafeFSM[E constraints.Ordered, S constraints.Ordered](initState S, tra
 func NewUnsafeFSMFromTransitions[E constraints.Ordered, S constraints.Ordered](initState S, ts Translator[E, S]) *FSMUnsafe[E, S] {
 	return &FSMUnsafe[E, S]{
 		current:    initState,
-		translator: ts,
+		Translator: ts,
 	}
 }
 
@@ -37,7 +37,7 @@ func NewUnsafeFSMFromTransitions[E constraints.Ordered, S constraints.Ordered](i
 func (f *FSMUnsafe[E, S]) Clone() *FSMUnsafe[E, S] {
 	return &FSMUnsafe[E, S]{
 		current:    f.current,
-		translator: f.translator,
+		Translator: f.Translator,
 	}
 }
 
@@ -45,7 +45,7 @@ func (f *FSMUnsafe[E, S]) Clone() *FSMUnsafe[E, S] {
 func (f *FSMUnsafe[E, S]) CloneWithState(newState S) *FSMUnsafe[E, S] {
 	return &FSMUnsafe[E, S]{
 		current:    newState,
-		translator: f.translator,
+		Translator: f.Translator,
 	}
 }
 
@@ -72,7 +72,7 @@ func (f *FSMUnsafe[E, S]) SetState(state S) {
 //
 // - ErrNonExistEvent: event X does not exist
 func (f *FSMUnsafe[E, S]) Trigger(event E) error {
-	dst, err := f.translator.Trigger(f.current, event)
+	dst, err := f.Translator.Trigger(f.current, event)
 	if err != nil {
 		return err
 	}
@@ -83,31 +83,21 @@ func (f *FSMUnsafe[E, S]) Trigger(event E) error {
 // ShouldTrigger return dst state transition with the named event and src state.
 // It will return if src state change to dst state success or holds the same as the current state:
 func (f *FSMUnsafe[E, S]) ShouldTrigger(event E) {
-	f.current = f.translator.ShouldTrigger(f.current, event)
+	f.current = f.Translator.ShouldTrigger(f.current, event)
 }
 
 // IsCan returns true if event can occur in the current state.
 func (f *FSMUnsafe[E, S]) IsCan(event E) bool {
-	return f.translator.IsCan(f.current, event)
+	return f.Translator.IsCan(f.current, event)
 }
 
 // IsAllCan returns true if all the events can occur in src state.
 func (f *FSMUnsafe[E, S]) IsAllCan(event ...E) bool {
-	return f.translator.IsAllCan(f.current, event...)
+	return f.Translator.IsAllCan(f.current, event...)
 }
 
 // AvailTransitionEvent returns a list of available transition event in the
 // current state.
 func (f *FSMUnsafe[E, S]) AvailTransitionEvent() []E {
-	return f.translator.AvailTransitionEvent(f.current)
-}
-
-// ContainEvent returns true if support the event.
-func (f *FSMUnsafe[E, S]) ContainEvent(event E) bool {
-	return f.translator.ContainEvent(event)
-}
-
-// ContainAllEvent returns true if support all event.
-func (f *FSMUnsafe[E, S]) ContainAllEvent(events ...E) bool {
-	return f.translator.ContainAllEvent(events...)
+	return f.Translator.AvailTransitionEvent(f.current)
 }

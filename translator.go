@@ -41,13 +41,28 @@ type eKey[E constraints.Ordered, S constraints.Ordered] struct {
 	src S
 }
 
-type Translator[E constraints.Ordered, S constraints.Ordered] map[eKey[E, S]]S
+// Trans map events and source states to destination states.
+// This is immutable
+type Trans[E constraints.Ordered, S constraints.Ordered] map[eKey[E, S]]S
+
+// Trans contain events and source states to destination states.
+// This is immutable
+type Translator[E constraints.Ordered, S constraints.Ordered] struct {
+	// contain all support enent.
+	events map[E]struct{}
+	// trans map events and source states to destination states.
+	trans map[eKey[E, S]]S
+}
 
 func NewTranslator[E constraints.Ordered, S constraints.Ordered](transitions Transforms[E, S]) Translator[E, S] {
-	ts := Translator[E, S]{}
+	ts := Translator[E, S]{
+		events: make(map[E]struct{}),
+		trans:  make(map[eKey[E, S]]S),
+	}
 	for _, e := range transitions {
+		ts.events[e.Event] = struct{}{}
 		for _, src := range e.Src {
-			ts[eKey[E, S]{e.Event, src}] = e.Dst
+			ts.trans[eKey[E, S]{e.Event, src}] = e.Dst
 		}
 	}
 	return ts
@@ -61,9 +76,9 @@ func NewTranslator[E constraints.Ordered, S constraints.Ordered](transitions Tra
 func (ts Translator[E, S]) Trigger(srcState S, event E) (dstState S, err error) {
 	var ok bool
 
-	dstState, ok = ts[eKey[E, S]{event, srcState}]
+	dstState, ok = ts.trans[eKey[E, S]{event, srcState}]
 	if !ok {
-		for ek := range ts {
+		for ek := range ts.trans {
 			if ek.event == event {
 				return dstState, ErrInappropriateEvent
 			}
@@ -87,7 +102,7 @@ func (ts Translator[E, S]) ShouldTrigger(srcState S, event E) (dstState S) {
 
 // IsCan returns true if event can occur in src state.
 func (ts Translator[E, S]) IsCan(srcState S, event E) bool {
-	_, ok := ts[eKey[E, S]{event, srcState}]
+	_, ok := ts.trans[eKey[E, S]{event, srcState}]
 	return ok
 }
 
@@ -106,7 +121,7 @@ func (ts Translator[E, S]) IsAllCan(srcState S, events ...E) bool {
 // AvailTransitionEvent returns a list of available transition event in src state.
 func (ts Translator[E, S]) AvailTransitionEvent(srcState S) []E {
 	es := make(map[E]struct{})
-	for key := range ts {
+	for key := range ts.trans {
 		if key.src == srcState {
 			es[key.event] = struct{}{}
 		}
@@ -116,25 +131,22 @@ func (ts Translator[E, S]) AvailTransitionEvent(srcState S) []E {
 
 // ContainEvent returns true if support the event.
 func (ts Translator[E, S]) ContainEvent(event E) bool {
-	for key := range ts {
-		if key.event == event {
-			return true
-		}
-	}
-	return false
+	_, ok := ts.events[event]
+	return ok
 }
 
 // ContainAllEvent returns true if support all event.
 func (ts Translator[E, S]) ContainAllEvent(events ...E) bool {
-	es := make(map[E]struct{})
-	for key := range ts {
-		es[key.event] = struct{}{}
-	}
 	for _, event := range events {
-		_, ok := es[event]
+		_, ok := ts.events[event]
 		if !ok {
 			return false
 		}
 	}
 	return true
+}
+
+// Trans return Trans
+func (ts Translator[E, S]) Trans() Trans[E, S] {
+	return ts.trans
 }

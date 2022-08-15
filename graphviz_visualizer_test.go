@@ -15,7 +15,7 @@ func TestGraphvizOutput(t *testing.T) {
 			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
 		},
 	)
-	got := Visualize(fsmUnderTest)
+	got := Visualize[string, string](fsmUnderTest)
 	wanted := `
 digraph fsm {
     "closed" -> "open" [ label = "open" ];

@@ -8,6 +8,12 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// Visualize outputs a visualization of a FSM in the desired format.
+type Visualizer[E constraints.Ordered, S constraints.Ordered] interface {
+	Current() S
+	Trans() Trans[E, S]
+}
+
 // VisualizeType the type of the visualization
 type VisualizeType string
 
@@ -24,7 +30,7 @@ const (
 
 // VisualizeWithType outputs a visualization of a FSM in the desired format.
 // If the type is not given it defaults to GRAPHVIZ
-func VisualizeWithType[E constraints.Ordered, S constraints.Ordered](fsm *FSM[E, S], visualizeType VisualizeType) (string, error) {
+func VisualizeWithType[E constraints.Ordered, S constraints.Ordered](fsm Visualizer[E, S], visualizeType VisualizeType) (string, error) {
 	switch visualizeType {
 	case GRAPHVIZ:
 		return Visualize(fsm), nil
