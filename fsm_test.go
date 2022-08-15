@@ -7,12 +7,17 @@ import (
 )
 
 func TestClone(t *testing.T) {
+	testIFsmClone(t, NewFromTransitions[string, string])
+	testIFsmClone(t, NewUnsafeFSMFromTransitions[string, string])
+}
+
+func testIFsmClone(t *testing.T, newFromTransitions func(initState string, ts Translator[string, string]) IFsm[string, string]) {
 	ts := NewTranslator(Transforms[string, string]{
 		{Event: "open", Src: []string{"closed"}, Dst: "open"},
 		{Event: "close", Src: []string{"open"}, Dst: "closed"},
 	})
 
-	fsm := NewFromTransitions("close", ts)
+	fsm := newFromTransitions("close", ts)
 	fsm1 := fsm.Clone()
 	if fsm1.Current() != fsm.Current() {
 		t.Errorf("expected same current state")
@@ -25,7 +30,12 @@ func TestClone(t *testing.T) {
 }
 
 func TestSameState(t *testing.T) {
-	fsm := New(
+	testSameState(t, New[string, string])
+	testSameState(t, NewUnsafeFSM[string, string])
+}
+
+func testSameState(t *testing.T, newFsm func(initState string, ts Transforms[string, string]) IFsm[string, string]) {
+	fsm := newFsm(
 		"start",
 		Transforms[string, string]{
 			{Event: "run", Src: []string{"start"}, Dst: "start"},
@@ -41,7 +51,12 @@ func TestSameState(t *testing.T) {
 }
 
 func TestState(t *testing.T) {
-	fsm := New(
+	testState(t, New[string, string])
+	testState(t, NewUnsafeFSM[string, string])
+}
+
+func testState(t *testing.T, newFsm func(initState string, ts Transforms[string, string]) IFsm[string, string]) {
+	fsm := newFsm(
 		"walking",
 		Transforms[string, string]{
 			{Event: "walk", Src: []string{"start"}, Dst: "walking"},
@@ -79,7 +94,12 @@ func TestState(t *testing.T) {
 }
 
 func TestAvailTransitionEvent(t *testing.T) {
-	fsm := New(
+	testAvailTransitionEvent(t, New[string, string])
+	testAvailTransitionEvent(t, NewUnsafeFSM[string, string])
+}
+
+func testAvailTransitionEvent(t *testing.T, newFsm func(initState string, ts Transforms[string, string]) IFsm[string, string]) {
+	fsm := newFsm(
 		"closed",
 		Transforms[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
@@ -98,9 +118,13 @@ func TestAvailTransitionEvent(t *testing.T) {
 		t.Error("expected not contain all [middle, open] event with current state")
 	}
 }
-
 func TestInappropriateEvent(t *testing.T) {
-	fsm := New(
+	testInappropriateEvent(t, New[string, string])
+	testInappropriateEvent(t, NewUnsafeFSM[string, string])
+}
+
+func testInappropriateEvent(t *testing.T, newFsm func(initState string, ts Transforms[string, string]) IFsm[string, string]) {
+	fsm := newFsm(
 		"closed",
 		Transforms[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
@@ -120,7 +144,12 @@ func TestInappropriateEvent(t *testing.T) {
 }
 
 func TestNonExistEvent(t *testing.T) {
-	fsm := New(
+	testNonExistEvent(t, New[string, string])
+	testNonExistEvent(t, NewUnsafeFSM[string, string])
+}
+
+func testNonExistEvent(t *testing.T, newFsm func(initState string, ts Transforms[string, string]) IFsm[string, string]) {
+	fsm := newFsm(
 		"closed",
 		Transforms[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
@@ -138,9 +167,12 @@ func TestNonExistEvent(t *testing.T) {
 		t.Error("ShouldTrigger expected hold original state with incorrect event")
 	}
 }
-
 func TestMultipleSources(t *testing.T) {
-	fsm := New(
+	testMultipleSources(t, New[string, string])
+	testMultipleSources(t, NewUnsafeFSM[string, string])
+}
+func testMultipleSources(t *testing.T, newFsm func(initState string, ts Transforms[string, string]) IFsm[string, string]) {
+	fsm := newFsm(
 		"one",
 		Transforms[string, string]{
 			{Event: "first", Src: []string{"one"}, Dst: "two"},
@@ -182,9 +214,12 @@ func TestMultipleSources(t *testing.T) {
 		t.Error("expected state to be 'one'")
 	}
 }
-
 func TestMultipleEvents(t *testing.T) {
-	fsm := New(
+	testMultipleEvents(t, New[string, string])
+	testMultipleEvents(t, NewUnsafeFSM[string, string])
+}
+func testMultipleEvents(t *testing.T, newFsm func(initState string, ts Transforms[string, string]) IFsm[string, string]) {
+	fsm := newFsm(
 		"start",
 		Transforms[string, string]{
 			{Event: "first", Src: []string{"start"}, Dst: "one"},
