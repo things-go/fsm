@@ -45,7 +45,7 @@ type eKey[E constraints.Ordered, S constraints.Ordered] struct {
 // This is immutable
 type Trans[E constraints.Ordered, S constraints.Ordered] map[eKey[E, S]]S
 
-// Trans contain events and source states to destination states.
+// Translator contain events and source states to destination states.
 // This is immutable
 type Translator[E constraints.Ordered, S constraints.Ordered] struct {
 	// contain all support enent.
