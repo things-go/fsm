@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	fsm1 := fsm.New(
+	fsm1 := fsm.NewSafeFsm(
 		"idle",
-		fsm.Transforms[string, string]{
+		fsm.NewTransition([]fsm.Transform[string, string]{
 			{Event: "produce", Src: []string{"idle"}, Dst: "idle"},
 			{Event: "consume", Src: []string{"idle"}, Dst: "idle"},
-		},
+		}),
 	)
 	fmt.Println(fsm1.Current())
 

@@ -10,15 +10,15 @@ import (
 )
 
 func main() {
-	f := fsm.New(
+	f := fsm.NewSafeFsm(
 		"idle",
-		fsm.Transforms[string, string]{
+		fsm.NewTransition([]fsm.Transform[string, string]{
 			{Event: "scan", Src: []string{"idle"}, Dst: "scanning"},
 			{Event: "working", Src: []string{"scanning"}, Dst: "scanning"},
 			{Event: "situation", Src: []string{"scanning"}, Dst: "scanning"},
 			{Event: "situation", Src: []string{"idle"}, Dst: "idle"},
 			{Event: "finish", Src: []string{"scanning"}, Dst: "idle"},
-		},
+		}),
 	)
 	fmt.Println(f.Current())
 

@@ -6,16 +6,16 @@ import (
 	"testing"
 )
 
-func TestMermaidOutput(t *testing.T) {
-	fsmUnderTest := New(
+func Test_Mermaid(t *testing.T) {
+	fsmUnderTest := NewSafeFsm(
 		"closed",
-		[]Transform[string, string]{
+		NewTransition([]Transform[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
 			{Event: "close", Src: []string{"open"}, Dst: "closed"},
 			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
-		},
+		}),
 	)
-	got, err := VisualizeForMermaidWithGraphType[string, string](fsmUnderTest, StateDiagram)
+	got, err := VisualizeMermaid[string, string](StateDiagram, fsmUnderTest)
 	if err != nil {
 		t.Errorf("got error for visualizing with type MERMAID: %s", err)
 	}
@@ -35,18 +35,18 @@ stateDiagram-v2
 	}
 }
 
-func TestMermaidFlowChartOutput(t *testing.T) {
-	fsmUnderTest := New(
+func Test_MermaidFlowChart(t *testing.T) {
+	fsmUnderTest := NewSafeFsm(
 		"closed",
-		[]Transform[string, string]{
+		NewTransition([]Transform[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
 			{Event: "part-open", Src: []string{"closed"}, Dst: "intermediate"},
 			{Event: "part-open", Src: []string{"intermediate"}, Dst: "open"},
 			{Event: "close", Src: []string{"open"}, Dst: "closed"},
 			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
-		},
+		}),
 	)
-	got, err := VisualizeForMermaidWithGraphType[string, string](fsmUnderTest, FlowChart)
+	got, err := VisualizeMermaid[string, string](FlowChart, fsmUnderTest)
 	if err != nil {
 		t.Errorf("got error for visualizing with type MERMAID: %s", err)
 	}

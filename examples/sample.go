@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	fsm1 := fsm.New[string, string](
+	fsm1 := fsm.NewSafeFsm[string, string](
 		"closed",
-		fsm.Transforms[string, string]{
+		fsm.NewTransition([]fsm.Transform[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
 			{Event: "close", Src: []string{"open"}, Dst: "closed"},
-		},
+		}),
 	)
 	fmt.Println(fsm1.Current())
 
