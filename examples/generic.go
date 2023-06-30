@@ -45,7 +45,7 @@ const (
 func main() {
 	f := fsm.New(
 		IsClosed,
-		fsm.Transforms[MyEvent, MyState]{
+		[]fsm.Transform[MyEvent, MyState]{
 			{Event: Open, Src: []MyState{IsClosed}, Dst: IsOpen},
 			{Event: Close, Src: []MyState{IsOpen}, Dst: IsClosed},
 		},
