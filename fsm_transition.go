@@ -50,6 +50,8 @@ func (e *TriggerSource[E, S]) State() S { return e.src }
 // Transition contain events and source states to destination states.
 // NOTE: This is immutable
 type Transition[E constraints.Ordered, S constraints.Ordered] struct {
+	// name is the name of the transition.
+	name string
 	// contain all support event and name.
 	events map[E]string
 	// contain all support state and name.
@@ -61,6 +63,8 @@ type Transition[E constraints.Ordered, S constraints.Ordered] struct {
 }
 
 type TransitionBuilder[E constraints.Ordered, S constraints.Ordered] struct {
+	// name is the name of the transition.
+	name string
 	// transforms
 	transforms []Transform[E, S]
 	// contain all support state and name.
@@ -75,6 +79,11 @@ func NewTransitionBuilder[E constraints.Ordered, S constraints.Ordered](transfor
 	}
 }
 
+func (b *TransitionBuilder[E, S]) Name(name string) *TransitionBuilder[E, S] {
+	b.name = name
+	return b
+}
+
 func (b *TransitionBuilder[E, S]) StateNames(states map[S]string) *TransitionBuilder[E, S] {
 	b.states = states
 	return b
@@ -87,6 +96,7 @@ func (b *TransitionBuilder[E, S]) TranslatorError(translate ErrorTranslator) *Tr
 
 func (b *TransitionBuilder[E, S]) Build() *Transition[E, S] {
 	t := &Transition[E, S]{
+		name:      b.name,
 		events:    make(map[E]string),
 		states:    make(map[S]string),
 		mapping:   make(map[TriggerSource[E, S]]S),
@@ -111,6 +121,9 @@ func NewTransition[E constraints.Ordered, S constraints.Ordered](transforms []Tr
 	return NewTransitionBuilder[E, S](transforms).
 		Build()
 }
+
+// Name return the name of the transition.
+func (t *Transition[E, S]) Name() string { return t.name }
 
 // Transform return the dst state transition with the named event and src state.
 // It will return nil if src state change to dst state success or one of these errors:

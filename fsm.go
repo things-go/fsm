@@ -28,8 +28,10 @@ type IFsm[E constraints.Ordered, S constraints.Ordered] interface {
 	// AvailEvents returns a list of available transform event in current state.
 	CurrentAvailEvents() []E
 
-	// transition support
+	// transition support.
 
+	// Name return the name of the transition.
+	Name() string
 	// Transform return the dst state transition with the named event and src state.
 	// It will return nil if src state change to dst state success or one of these errors:
 	//

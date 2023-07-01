@@ -7,6 +7,7 @@ import (
 // Visualize outputs a visualization of a FSM in the desired format.
 type Visualizer[E constraints.Ordered, S constraints.Ordered] interface {
 	Current() S
+	Name() string
 	Transform(srcState S, event E) (dstState S, err error)
 	SortedTriggerSource() []TriggerSource[E, S]
 	SortedStates() []S

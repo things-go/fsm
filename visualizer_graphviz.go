@@ -43,6 +43,10 @@ func (v *visualizeGraphvizBuilder[E, S]) writeHeaderLine() *visualizeGraphvizBui
 	}
 	v.buf.WriteString("digraph fsm {")
 	v.buf.WriteString("\n")
+	if v.fsm.Name() != "" {
+		v.buf.WriteString(fmt.Sprintf(`    label="%s"`, v.fsm.Name()))
+		v.buf.WriteString("\n")
+	}
 	return v
 }
 

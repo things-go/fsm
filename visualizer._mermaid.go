@@ -34,6 +34,11 @@ func VisualizeMermaid[E constraints.Ordered, S constraints.Ordered](t MermaidTyp
 func visualizeMermaidStateDiagram[E constraints.Ordered, S constraints.Ordered](fsm Visualizer[E, S]) (string, error) {
 	sortedTriggerSources := fsm.SortedTriggerSource()
 	buf := strings.Builder{}
+	if fsm.Name() != "" {
+		buf.WriteString("---\n")
+		buf.WriteString(fmt.Sprintf("title: %s\n", fsm.Name()))
+		buf.WriteString("---\n")
+	}
 	buf.WriteString("stateDiagram-v2\n")
 	buf.WriteString(fmt.Sprintln(`    [*] -->`, fsm.StateName(fsm.Current())))
 	for _, ts := range sortedTriggerSources {
@@ -84,6 +89,11 @@ func newVisualizeMermaidFlowChartBuilder[E constraints.Ordered, S constraints.Or
 func (v *visualizeMermaidFlowChartBuilder[E, S]) writeFlowChartGraphType() *visualizeMermaidFlowChartBuilder[E, S] {
 	if v.err != nil {
 		return v
+	}
+	if v.fsm.Name() != "" {
+		v.buf.WriteString("---\n")
+		v.buf.WriteString(fmt.Sprintf("title: %s\n", v.fsm.Name()))
+		v.buf.WriteString("---\n")
 	}
 	v.buf.WriteString("graph LR\n")
 	return v
