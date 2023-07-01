@@ -57,3 +57,6 @@ func (f *Fsm[E, S]) MatchCurrentAllOccur(event ...E) bool {
 func (f *Fsm[E, S]) CurrentAvailEvents() []E {
 	return f.Transition.AvailEvents(f.current)
 }
+func (f *Fsm[E, S]) Visualize(t VisualizeType) (string, error) {
+	return Visualize[E, S](t, f)
+}

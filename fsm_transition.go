@@ -15,20 +15,20 @@ var (
 	ErrNonExistEvent      = errors.New("fsm: event does not exist")
 )
 
-// Transform represents an event when initializing the FSM.
+// Transform represents an event when initializing the Fsm.
 //
 // The event can have one or more source states that is valid for performing
-// the transition. If the FSM is in one of the source states it will end up in
+// the transition. If the Fsm is in one of the source states it will end up in
 // the specified destination state.
 type Transform[E constraints.Ordered, S constraints.Ordered] struct {
 	// Name the event.
 	Name string
 	// Event is the event used when calling for the transform.
 	Event E
-	// Src is a slice of source states that the FSM must be in to perform a
+	// Src is a slice of source states that the Fsm must be in to perform a
 	// state transform.
 	Src []S
-	// Dst is the destination state that the FSM will be in if the transform
+	// Dst is the destination state that the Fsm will be in if the transform
 	// succeeds.
 	Dst S
 }
@@ -190,6 +190,17 @@ func (t *Transition[E, S]) ContainsAllEvent(events ...E) bool {
 func (t *Transition[E, S]) AvailEvents(srcState S) []E {
 	events := t.availEvents(srcState)
 	return maps.Keys(events)
+}
+
+// AvailSourceStates returns a list of available source state in the event.
+func (t *Transition[E, S]) AvailSourceStates(event E) []S {
+	srcs := make([]S, 0, 8)
+	for ts := range t.mapping {
+		if ts.event == event {
+			srcs = append(srcs, ts.src)
+		}
+	}
+	return srcs
 }
 
 // SortedTriggerSource return a list of sorted trigger source

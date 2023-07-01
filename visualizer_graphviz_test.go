@@ -7,7 +7,7 @@ import (
 )
 
 func Test_Graphviz(t *testing.T) {
-	fsmUnderTest := NewSafeFsm(
+	fsmUnderTest := NewFsm(
 		"closed",
 		NewTransition([]Transform[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
@@ -15,7 +15,7 @@ func Test_Graphviz(t *testing.T) {
 			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
 		}),
 	)
-	got, err := VisualizeGraphviz[string, string](fsmUnderTest)
+	got, err := fsmUnderTest.Visualize(Graphviz)
 	if err != nil {
 		panic(err)
 	}
@@ -54,7 +54,8 @@ func Test_Graphviz_CustomName(t *testing.T) {
 			}).
 			Build(),
 	)
-	got, err := VisualizeGraphviz[string, string](fsmUnderTest)
+
+	got, err := fsmUnderTest.Visualize(Graphviz)
 	if err != nil {
 		panic(err)
 	}

@@ -4,7 +4,7 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-// Visualize outputs a visualization of a FSM in the desired format.
+// Visualize outputs a visualization of a Fsm in the desired format.
 type Visualizer[E constraints.Ordered, S constraints.Ordered] interface {
 	Current() S
 	Name() string
@@ -30,7 +30,7 @@ const (
 	MermaidFlowChart VisualizeType = "mermaid-flow-chart"
 )
 
-// Visualize outputs a visualization of a FSM in the desired format.
+// Visualize outputs a visualization of a Fsm in the desired format.
 // If the type is not given it defaults to Graphviz
 func Visualize[E constraints.Ordered, S constraints.Ordered](t VisualizeType, fsm Visualizer[E, S]) (string, error) {
 	switch t {

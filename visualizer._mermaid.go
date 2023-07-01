@@ -19,7 +19,7 @@ const (
 	StateDiagram MermaidType = "stateDiagram"
 )
 
-// VisualizeMermaid outputs a visualization of a FSM in Mermaid format as specified by the graphType.
+// VisualizeMermaid outputs a visualization of a Fsm in Mermaid format as specified by the graphType.
 func VisualizeMermaid[E constraints.Ordered, S constraints.Ordered](t MermaidType, fsm Visualizer[E, S]) (string, error) {
 	switch t {
 	case FlowChart:
@@ -52,7 +52,7 @@ func visualizeMermaidStateDiagram[E constraints.Ordered, S constraints.Ordered](
 	return buf.String(), nil
 }
 
-// visualizeMermaidFlowChart outputs a visualization of a FSM in Mermaid format (including highlighting of current state).
+// visualizeMermaidFlowChart outputs a visualization of a Fsm in Mermaid format (including highlighting of current state).
 func visualizeMermaidFlowChart[E constraints.Ordered, S constraints.Ordered](fsm Visualizer[E, S]) (string, error) {
 	v := newVisualizeMermaidFlowChartBuilder(fsm).
 		writeFlowChartGraphType().

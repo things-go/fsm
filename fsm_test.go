@@ -111,12 +111,12 @@ func test_Fsm_State(t *testing.T, newFsm func(initState string, ts *Transition[s
 	}
 }
 
-func Test_Fsm_AvailEvents(t *testing.T) {
-	test_Fsm_AvailEvents(t, NewSafeFsm[string, string])
-	test_Fsm_AvailEvents(t, NewFsm[string, string])
+func Test_Fsm_Avail(t *testing.T) {
+	test_Fsm_Avail(t, NewSafeFsm[string, string])
+	test_Fsm_Avail(t, NewFsm[string, string])
 }
 
-func test_Fsm_AvailEvents(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func test_Fsm_Avail(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
 		"closed",
 		NewTransition([]Transform[string, string]{
@@ -132,6 +132,10 @@ func test_Fsm_AvailEvents(t *testing.T, newFsm func(initState string, ts *Transi
 	sortedEvents := fsm.SortedEvents()
 	if !slices.Equal(sortedEvents, []string{"close", "middle", "open"}) {
 		t.Error("expected sort event [close, middle, open] event with current state")
+	}
+	availSourceStates := fsm.AvailSourceStates("open")
+	if !slices.Contains(availSourceStates, "closed") {
+		t.Error("expected avail source state [closed] with the event")
 	}
 
 	if !fsm.MatchCurrentAllOccur("middle", "open") {

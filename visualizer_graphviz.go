@@ -8,7 +8,7 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-// VisualizeGraphviz outputs a visualization of a FSM in Graphviz format.
+// VisualizeGraphviz outputs a visualization of a Fsm in Graphviz format.
 func VisualizeGraphviz[E constraints.Ordered, S constraints.Ordered](fsm Visualizer[E, S]) (string, error) {
 	v := newVisualizeGraphvizBuilder(fsm).
 		writeHeaderLine().

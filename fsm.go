@@ -4,6 +4,12 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+type Diagram interface {
+	// Visualize outputs a visualization of a Fsm in the desired format.
+	// If the type is not given it defaults to Graphviz
+	Visualize(t VisualizeType) (string, error)
+}
+
 type IFsm[E constraints.Ordered, S constraints.Ordered] interface {
 	// Clone the Fsm.
 	Clone() IFsm[E, S]
@@ -50,6 +56,8 @@ type IFsm[E constraints.Ordered, S constraints.Ordered] interface {
 	ContainsAllEvent(events ...E) bool
 	// AvailEvents returns a list of available transform event in src state.
 	AvailEvents(srcState S) []E
+	// AvailSourceStates returns a list of available source state in the event.
+	AvailSourceStates(event E) []S
 	// SortedTriggerSource return a list of sorted trigger source
 	SortedTriggerSource() []TriggerSource[E, S]
 	// SortedStates return a list of sorted states.
@@ -60,6 +68,7 @@ type IFsm[E constraints.Ordered, S constraints.Ordered] interface {
 	EventName(event E) string
 	// StateName returns a state name.
 	StateName(state S) string
+	Diagram
 }
 
 type ErrorTranslator interface {
