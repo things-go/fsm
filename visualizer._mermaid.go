@@ -46,7 +46,7 @@ func visualizeMermaidStateDiagram[E constraints.Ordered, S constraints.Ordered](
 		if err != nil {
 			return "", err
 		}
-		buf.WriteString(fmt.Sprintf(`    %v --> %v: %v`, fsm.StateName(ts.State()), fsm.StateName(dst), fsm.EventName(ts.Event())))
+		buf.WriteString(fmt.Sprintf(`    %s --> %s: %s`, fsm.StateName(ts.State()), fsm.StateName(dst), fsm.EventName(ts.Event())))
 		buf.WriteString("\n")
 	}
 	return buf.String(), nil
@@ -104,7 +104,7 @@ func (v *visualizeMermaidFlowChartBuilder[E, S]) writeFlowChartStates() *visuali
 		return v
 	}
 	for _, state := range v.sortedStates {
-		v.buf.WriteString(fmt.Sprintf(`    %s[%v]`, v.statesId[state], v.fsm.StateName(state)))
+		v.buf.WriteString(fmt.Sprintf(`    %s[%s]`, v.statesId[state], v.fsm.StateName(state)))
 		v.buf.WriteString("\n")
 	}
 	v.buf.WriteString("\n")
@@ -120,7 +120,7 @@ func (v *visualizeMermaidFlowChartBuilder[E, S]) writeFlowChartTransitions() *vi
 		if err != nil {
 			return v.setErr(err)
 		}
-		v.buf.WriteString(fmt.Sprintf(`    %s --> |%v| %s`, v.statesId[ts.State()], v.fsm.EventName(ts.Event()), v.statesId[dst]))
+		v.buf.WriteString(fmt.Sprintf(`    %s --> |%s| %s`, v.statesId[ts.State()], v.fsm.EventName(ts.Event()), v.statesId[dst]))
 		v.buf.WriteString("\n")
 	}
 	v.buf.WriteString("\n")

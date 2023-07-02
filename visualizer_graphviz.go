@@ -61,13 +61,14 @@ func (v *visualizeGraphvizBuilder[E, S]) writeTransitions() *visualizeGraphvizBu
 		if err != nil {
 			return v.setErr(err)
 		}
-		line := fmt.Sprintf(`    "%v" -> "%v" [ label = "%v" ];`, v.fsm.StateName(ts.State()), v.fsm.StateName(dst), v.fsm.EventName(ts.Event()))
+		line := fmt.Sprintf(`    "%s" -> "%s" [ label = "%s" ];`, v.fsm.StateName(ts.State()), v.fsm.StateName(dst), v.fsm.EventName(ts.Event()))
 		if ts.State() == v.fsm.Current() {
 			v.buf.WriteString(line)
+			v.buf.WriteString("\n")
 		} else {
 			b.WriteString(line)
+			b.WriteString("\n")
 		}
-		b.WriteString("\n")
 	}
 	if b.Len() > 0 {
 		v.buf.Write(b.Bytes())
@@ -81,7 +82,7 @@ func (v *visualizeGraphvizBuilder[E, S]) writeStates() *visualizeGraphvizBuilder
 		return v
 	}
 	for _, state := range v.sortedStates {
-		v.buf.WriteString(fmt.Sprintf(`    "%v";`, v.fsm.StateName(state)))
+		v.buf.WriteString(fmt.Sprintf(`    "%s";`, v.fsm.StateName(state)))
 		v.buf.WriteString("\n")
 	}
 	return v
