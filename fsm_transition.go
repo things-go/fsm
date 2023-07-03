@@ -15,6 +15,45 @@ var (
 	ErrNonExistEvent      = errors.New("fsm: event does not exist")
 )
 
+type ITransition[E constraints.Ordered, S constraints.Ordered] interface {
+	// Name return the name of the transition.
+	Name() string
+	// Transform return the dst state transition with the named event and src state.
+	// It will return nil if src state change to dst state success or one of these errors:
+	//
+	// - ErrInappropriateEvent: event inappropriate in the src state.
+	// - ErrNonExistEvent: event does not exist
+	Transform(srcState S, event E) (dstState S, err error)
+	// Match reports whether it can be transform to dst state with the named event and src state.
+	Match(srcState, dstState S, event E) (bool, error)
+	// MatchOccur returns true if event can occur in src state.
+	MatchOccur(srcState S, event E) bool
+	// MatchAllOccur returns true if all the events can occur in src state.
+	MatchAllOccur(srcState S, events ...E) bool
+	// ContainsEvent returns true if support the event.
+	ContainsEvent(event E) bool
+	// ContainsAllEvent returns true if support all event.
+	ContainsAllEvent(events ...E) bool
+	// AvailEvents returns a list of available transform event in src state.
+	AvailEvents(srcState S) []E
+	// AvailSourceStates returns a list of available source state in the event.
+	AvailSourceStates(event E) []S
+	// SortedTriggerSource return a list of sorted trigger source
+	SortedTriggerSource() []TriggerSource[E, S]
+	// SortedStates return a list of sorted states.
+	SortedStates() []S
+	// SortedEvents return a list of sorted events.
+	SortedEvents() []E
+	// StateName returns a event name.
+	EventName(event E) string
+	// StateName returns a state name.
+	StateName(state S) string
+	// CloneFsm clone the Fsm with new state.
+	CloneFsm(newState S) IFsm[E, S]
+	// CloneSafeFsm clone the safe Fsm with new state.
+	CloneSafeFsm(newState S) IFsm[E, S]
+}
+
 // Transform represents an event when initializing the Fsm.
 //
 // The event can have one or more source states that is valid for performing
@@ -264,4 +303,20 @@ func (t *Transition[E, S]) translateError(err error) error {
 		return err
 	}
 	return t.translate.Translate(err)
+}
+
+// CloneFsm clone the Fsm with new state.
+func (t *Transition[E, S]) CloneFsm(newState S) IFsm[E, S] {
+	return &Fsm[E, S]{
+		current:    newState,
+		Transition: t,
+	}
+}
+
+// CloneSafeFsm clone the safe Fsm with new state.
+func (t *Transition[E, S]) CloneSafeFsm(newState S) IFsm[E, S] {
+	return &SafeFsm[E, S]{
+		current:    newState,
+		Transition: t,
+	}
 }
