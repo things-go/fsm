@@ -26,10 +26,16 @@ func NewFsm[E constraints.Ordered, S constraints.Ordered](initState S, ts *Trans
 	}
 }
 func (f *Fsm[E, S]) Clone() IFsm[E, S] {
-	return f.Transition.CloneFsm(f.current)
+	return &Fsm[E, S]{
+		current:    f.current,
+		Transition: f.Transition,
+	}
 }
 func (f *Fsm[E, S]) CloneNewState(newState S) IFsm[E, S] {
-	return f.Transition.CloneFsm(newState)
+	return &Fsm[E, S]{
+		current:    newState,
+		Transition: f.Transition,
+	}
 }
 func (f *Fsm[E, S]) Current() S         { return f.current }
 func (f *Fsm[E, S]) Is(state S) bool    { return state == f.current }

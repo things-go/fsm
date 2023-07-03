@@ -48,10 +48,6 @@ type ITransition[E constraints.Ordered, S constraints.Ordered] interface {
 	EventName(event E) string
 	// StateName returns a state name.
 	StateName(state S) string
-	// CloneFsm clone the Fsm with new state.
-	CloneFsm(newState S) IFsm[E, S]
-	// CloneSafeFsm clone the safe Fsm with new state.
-	CloneSafeFsm(newState S) IFsm[E, S]
 }
 
 // Transform represents an event when initializing the Fsm.
@@ -303,20 +299,4 @@ func (t *Transition[E, S]) translateError(err error) error {
 		return err
 	}
 	return t.translate.Translate(err)
-}
-
-// CloneFsm clone the Fsm with new state.
-func (t *Transition[E, S]) CloneFsm(newState S) IFsm[E, S] {
-	return &Fsm[E, S]{
-		current:    newState,
-		Transition: t,
-	}
-}
-
-// CloneSafeFsm clone the safe Fsm with new state.
-func (t *Transition[E, S]) CloneSafeFsm(newState S) IFsm[E, S] {
-	return &SafeFsm[E, S]{
-		current:    newState,
-		Transition: t,
-	}
 }

@@ -32,10 +32,16 @@ func NewSafeFsm[E constraints.Ordered, S constraints.Ordered](initState S, ts *T
 	}
 }
 func (f *SafeFsm[E, S]) Clone() IFsm[E, S] {
-	return f.Transition.CloneSafeFsm(f.current)
+	return &SafeFsm[E, S]{
+		current:    f.current,
+		Transition: f.Transition,
+	}
 }
 func (f *SafeFsm[E, S]) CloneNewState(newState S) IFsm[E, S] {
-	return f.Transition.CloneSafeFsm(newState)
+	return &SafeFsm[E, S]{
+		current:    newState,
+		Transition: f.Transition,
+	}
 }
 func (f *SafeFsm[E, S]) Current() S {
 	f.mu.RLock()
