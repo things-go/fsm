@@ -37,7 +37,7 @@ type ITransition[E constraints.Ordered, S constraints.Ordered] interface {
 	// AvailEvents returns a list of available transform event in src state.
 	AvailEvents(srcState S) []E
 	// AvailSourceStates returns a list of available source state in the event.
-	AvailSourceStates(event E) []S
+	AvailSourceStates(event ...E) []S
 	// SortedTriggerSource return a list of sorted trigger source
 	SortedTriggerSource() []TriggerSource[E, S]
 	// SortedStates return a list of sorted states.
@@ -227,15 +227,15 @@ func (t *Transition[E, S]) AvailEvents(srcState S) []E {
 	return maps.Keys(events)
 }
 
-// AvailSourceStates returns a list of available source state in the event.
-func (t *Transition[E, S]) AvailSourceStates(event E) []S {
-	srcs := make([]S, 0, 8)
+// AvailSourceStates returns a list of available source state in this event.
+func (t *Transition[E, S]) AvailSourceStates(events ...E) []S {
+	srcs := make(map[S]struct{})
 	for ts := range t.mapping {
-		if ts.event == event {
-			srcs = append(srcs, ts.src)
+		if slices.Contains(events, ts.event) {
+			srcs[ts.src] = struct{}{}
 		}
 	}
-	return srcs
+	return maps.Keys(srcs)
 }
 
 // SortedTriggerSource return a list of sorted trigger source
