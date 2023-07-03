@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	fsm1 := fsm.NewSafeFsm(
+	fsm1 := fsm.NewSafeFsm[string, string](
 		"idle",
 		fsm.NewTransition([]fsm.Transform[string, string]{
 			{Event: "produce", Src: []string{"idle"}, Dst: "idle"},

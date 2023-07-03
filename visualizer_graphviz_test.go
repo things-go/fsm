@@ -7,7 +7,7 @@ import (
 )
 
 func Test_Graphviz(t *testing.T) {
-	fsmUnderTest := NewFsm(
+	fsmUnderTest := NewFsm[string, string](
 		"closed",
 		NewTransition([]Transform[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
@@ -39,7 +39,7 @@ digraph fsm {
 }
 
 func Test_Graphviz_CustomName(t *testing.T) {
-	fsmUnderTest := NewSafeFsm(
+	fsmUnderTest := NewSafeFsm[string, string](
 		"closed",
 		NewTransitionBuilder([]Transform[string, string]{
 			{Name: "打开", Event: "open", Src: []string{"closed"}, Dst: "open"},

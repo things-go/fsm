@@ -15,7 +15,7 @@ var _ IFsm[int, string] = (*SafeFsm[int, string])(nil)
 type SafeFsm[E constraints.Ordered, S constraints.Ordered] struct {
 	// Transition contain events and source states to destination states.
 	// This is immutable
-	*Transition[E, S]
+	ITransition[E, S]
 	// mu guards access to the current state.
 	mu sync.RWMutex
 	// current is the state that the Fsm is currently in.
@@ -25,22 +25,22 @@ type SafeFsm[E constraints.Ordered, S constraints.Ordered] struct {
 // NewSafeFsm constructs a generic Fsm with an initial state S and a transition.
 // E is the event type
 // S is the state type.
-func NewSafeFsm[E constraints.Ordered, S constraints.Ordered](initState S, ts *Transition[E, S]) IFsm[E, S] {
+func NewSafeFsm[E constraints.Ordered, S constraints.Ordered](initState S, ts ITransition[E, S]) IFsm[E, S] {
 	return &SafeFsm[E, S]{
-		current:    initState,
-		Transition: ts,
+		current:     initState,
+		ITransition: ts,
 	}
 }
 func (f *SafeFsm[E, S]) Clone() IFsm[E, S] {
 	return &SafeFsm[E, S]{
-		current:    f.current,
-		Transition: f.Transition,
+		current:     f.current,
+		ITransition: f.ITransition,
 	}
 }
 func (f *SafeFsm[E, S]) CloneNewState(newState S) IFsm[E, S] {
 	return &SafeFsm[E, S]{
-		current:    newState,
-		Transition: f.Transition,
+		current:     newState,
+		ITransition: f.ITransition,
 	}
 }
 func (f *SafeFsm[E, S]) Current() S {
@@ -61,7 +61,7 @@ func (f *SafeFsm[E, S]) Is(state S) bool {
 func (f *SafeFsm[E, S]) Trigger(event E) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	dst, err := f.Transition.Transform(f.current, event)
+	dst, err := f.ITransition.Transform(f.current, event)
 	if err != nil {
 		return err
 	}
@@ -69,13 +69,13 @@ func (f *SafeFsm[E, S]) Trigger(event E) error {
 	return nil
 }
 func (f *SafeFsm[E, S]) MatchCurrentOccur(event E) bool {
-	return f.Transition.MatchOccur(f.current, event)
+	return f.ITransition.MatchOccur(f.current, event)
 }
 func (f *SafeFsm[E, S]) MatchCurrentAllOccur(event ...E) bool {
-	return f.Transition.MatchAllOccur(f.current, event...)
+	return f.ITransition.MatchAllOccur(f.current, event...)
 }
 func (f *SafeFsm[E, S]) CurrentAvailEvents() []E {
-	return f.Transition.AvailEvents(f.current)
+	return f.ITransition.AvailEvents(f.current)
 }
 func (f *SafeFsm[E, S]) Visualize(t VisualizeType) (string, error) {
 	return Visualize[E, S](t, f)

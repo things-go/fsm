@@ -7,7 +7,7 @@ import (
 )
 
 func Test_MermaidStateDiagram(t *testing.T) {
-	fsmUnderTest := NewSafeFsm(
+	fsmUnderTest := NewSafeFsm[string, string](
 		"closed",
 		NewTransition([]Transform[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
@@ -36,7 +36,7 @@ stateDiagram-v2
 }
 
 func Test_MermaidStateDiagram_CustomName(t *testing.T) {
-	fsmUnderTest := NewSafeFsm(
+	fsmUnderTest := NewSafeFsm[string, string](
 		"closed",
 		NewTransitionBuilder([]Transform[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
@@ -70,7 +70,7 @@ stateDiagram-v2
 }
 
 func Test_MermaidFlowChart(t *testing.T) {
-	fsmUnderTest := NewSafeFsm(
+	fsmUnderTest := NewSafeFsm[string, string](
 		"closed",
 		NewTransition([]Transform[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},
@@ -108,7 +108,7 @@ graph LR
 }
 
 func Test_MermaidFlowChart_CustomName(t *testing.T) {
-	fsmUnderTest := NewSafeFsm(
+	fsmUnderTest := NewSafeFsm[string, string](
 		"closed",
 		NewTransitionBuilder([]Transform[string, string]{
 			{Event: "open", Src: []string{"closed"}, Dst: "open"},

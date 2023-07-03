@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	f := fsm.NewSafeFsm(
+	f := fsm.NewSafeFsm[string, string](
 		"idle",
 		fsm.NewTransition([]fsm.Transform[string, string]{
 			{Event: "scan", Src: []string{"idle"}, Dst: "scanning"},

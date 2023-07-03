@@ -43,7 +43,7 @@ const (
 )
 
 func main() {
-	f := fsm.NewSafeFsm(
+	f := fsm.NewSafeFsm[MyEvent, MyState](
 		IsClosed,
 		fsm.NewTransition([]fsm.Transform[MyEvent, MyState]{
 			{Event: Open, Src: []MyState{IsClosed}, Dst: IsOpen},

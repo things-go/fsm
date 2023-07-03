@@ -13,7 +13,7 @@ func Test_Fsm_Clone(t *testing.T) {
 	test_Fsm_Clone(t, NewFsm[string, string])
 }
 
-func test_Fsm_Clone(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func test_Fsm_Clone(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	ts := NewTransition([]Transform[string, string]{
 		{Event: "open", Src: []string{"closed"}, Dst: "open"},
 		{Event: "close", Src: []string{"open"}, Dst: "closed"},
@@ -35,7 +35,7 @@ func Test_Fsm_SameState(t *testing.T) {
 	test_Fsm_SameState(t, NewFsm[string, string])
 }
 
-func test_Fsm_SameState(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func test_Fsm_SameState(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
 		"start",
 		NewTransition([]Transform[string, string]{
@@ -56,7 +56,7 @@ func Test_Fsm_State(t *testing.T) {
 	test_Fsm_State(t, NewFsm[string, string])
 }
 
-func test_Fsm_State(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func test_Fsm_State(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
 		"walking",
 		NewTransition([]Transform[string, string]{
@@ -116,7 +116,7 @@ func Test_Fsm_Avail(t *testing.T) {
 	test_Fsm_Avail(t, NewFsm[string, string])
 }
 
-func test_Fsm_Avail(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func test_Fsm_Avail(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
 		"closed",
 		NewTransition([]Transform[string, string]{
@@ -150,7 +150,7 @@ func Test_Fsm_InappropriateEvent(t *testing.T) {
 	test_Fsm_InappropriateEvent(t, NewFsm[string, string])
 }
 
-func test_Fsm_InappropriateEvent(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func test_Fsm_InappropriateEvent(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
 		"closed",
 		NewTransition([]Transform[string, string]{
@@ -170,7 +170,7 @@ func Test_Fsm_NonExistEvent(t *testing.T) {
 	test_Fsm_NonExistEvent(t, NewFsm[string, string])
 }
 
-func test_Fsm_NonExistEvent(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func test_Fsm_NonExistEvent(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
 		"closed",
 		NewTransition([]Transform[string, string]{
@@ -188,7 +188,7 @@ func Test_Fsm_MultipleSources(t *testing.T) {
 	testFsm_MultipleSources(t, NewSafeFsm[string, string])
 	testFsm_MultipleSources(t, NewFsm[string, string])
 }
-func testFsm_MultipleSources(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func testFsm_MultipleSources(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
 		"one",
 		NewTransition([]Transform[string, string]{
@@ -235,7 +235,7 @@ func Test_Fsm_MultipleEvents(t *testing.T) {
 	test_Fsm_MultipleEvents(t, NewSafeFsm[string, string])
 	test_Fsm_MultipleEvents(t, NewFsm[string, string])
 }
-func test_Fsm_MultipleEvents(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func test_Fsm_MultipleEvents(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
 		"start",
 		NewTransition([]Transform[string, string]{
@@ -303,7 +303,7 @@ func (testTranslatorError) Translate(err error) error {
 	return err
 }
 
-func test_Fsm_TranslateError(t *testing.T, newFsm func(initState string, ts *Transition[string, string]) IFsm[string, string]) {
+func test_Fsm_TranslateError(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
 		"closed",
 		NewTransitionBuilder(
