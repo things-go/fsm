@@ -20,7 +20,7 @@ type Visualizer[E constraints.Ordered, S constraints.Ordered] interface {
 type VisualizeType string
 
 const (
-	// Graphviz the type for graphviz output (http://www.webgraphviz.com/)
+	// Graphviz the type for graphviz output (https://www.graphviz.org/)
 	Graphviz VisualizeType = "graphviz"
 	// Mermaid the type for mermaid output (https://mermaid-js.github.io/mermaid/#/stateDiagram) in the stateDiagram form
 	Mermaid VisualizeType = "mermaid"

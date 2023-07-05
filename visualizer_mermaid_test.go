@@ -7,80 +7,80 @@ import (
 )
 
 func Test_MermaidStateDiagram(t *testing.T) {
-	fsmUnderTest := NewSafeFsm[string, string](
-		"closed",
-		NewTransition([]Transform[string, string]{
-			{Event: "open", Src: []string{"closed"}, Dst: "open"},
-			{Event: "close", Src: []string{"open"}, Dst: "closed"},
-			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
+	fsmUnderTest := NewSafeFsm[LampEvent, LampStatus](
+		LampStatus_Closed,
+		NewTransition([]Transform[LampEvent, LampStatus]{
+			{Event: LampEvent_Open, Src: []LampStatus{LampStatus_Closed}, Dst: LampStatus_Opened},
+			{Event: LampEvent_Close, Src: []LampStatus{LampStatus_Opened}, Dst: LampStatus_Closed},
+			{Event: LampEvent_PartialClose, Src: []LampStatus{LampStatus_Intermediate}, Dst: LampStatus_Closed},
 		}),
 	)
-	got, err := VisualizeMermaid[string, string](StateDiagram, fsmUnderTest)
+	got, err := VisualizeMermaid[LampEvent, LampStatus](StateDiagram, fsmUnderTest)
 	if err != nil {
 		t.Errorf("got error for visualizing with type MERMAID: %s", err)
 	}
 	wanted := `
 stateDiagram-v2
     [*] --> closed
-    closed --> open: open
-    intermediate --> closed: part-close
-    open --> closed: close
+    closed --> opened: open
+    intermediate --> closed: partial-close
+    opened --> closed: close
 `
 	normalizedGot := strings.ReplaceAll(got, "\n", "")
 	normalizedWanted := strings.ReplaceAll(wanted, "\n", "")
 	if normalizedGot != normalizedWanted {
 		t.Errorf("build mermaid graph failed. \nwanted \n%s\nand got \n%s\n", wanted, got)
-		fmt.Println([]byte(normalizedGot))
-		fmt.Println([]byte(normalizedWanted))
+		fmt.Println(normalizedGot)
+		fmt.Println(normalizedWanted)
 	}
 }
 
 func Test_MermaidStateDiagram_CustomName(t *testing.T) {
-	fsmUnderTest := NewSafeFsm[string, string](
-		"closed",
-		NewTransitionBuilder([]Transform[string, string]{
-			{Event: "open", Src: []string{"closed"}, Dst: "open"},
-			{Event: "close", Src: []string{"open"}, Dst: "closed"},
-			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
+	fsmUnderTest := NewSafeFsm[LampEvent, LampStatus](
+		LampStatus_Closed,
+		NewTransitionBuilder([]Transform[LampEvent, LampStatus]{
+			{Event: LampEvent_Open, Src: []LampStatus{LampStatus_Closed}, Dst: LampStatus_Opened},
+			{Event: LampEvent_Close, Src: []LampStatus{LampStatus_Opened}, Dst: LampStatus_Closed},
+			{Event: LampEvent_PartialClose, Src: []LampStatus{LampStatus_Intermediate}, Dst: LampStatus_Closed},
 		}).
-			Name("this is transition").
+			Name("Lamp FSM").
 			Build(),
 	)
-	got, err := VisualizeMermaid[string, string](StateDiagram, fsmUnderTest)
+	got, err := VisualizeMermaid[LampEvent, LampStatus](StateDiagram, fsmUnderTest)
 	if err != nil {
 		t.Errorf("got error for visualizing with type MERMAID: %s", err)
 	}
 	wanted := `
 ---
-title: this is transition
+title: Lamp FSM
 ---
 stateDiagram-v2
     [*] --> closed
-    closed --> open: open
-    intermediate --> closed: part-close
-    open --> closed: close
+    closed --> opened: open
+    intermediate --> closed: partial-close
+    opened --> closed: close
 `
 	normalizedGot := strings.ReplaceAll(got, "\n", "")
 	normalizedWanted := strings.ReplaceAll(wanted, "\n", "")
 	if normalizedGot != normalizedWanted {
 		t.Errorf("build mermaid graph failed. \nwanted \n%s\nand got \n%s\n", wanted, got)
-		fmt.Println([]byte(normalizedGot))
-		fmt.Println([]byte(normalizedWanted))
+		fmt.Println(normalizedGot)
+		fmt.Println(normalizedWanted)
 	}
 }
 
 func Test_MermaidFlowChart(t *testing.T) {
-	fsmUnderTest := NewSafeFsm[string, string](
-		"closed",
-		NewTransition([]Transform[string, string]{
-			{Event: "open", Src: []string{"closed"}, Dst: "open"},
-			{Event: "part-open", Src: []string{"closed"}, Dst: "intermediate"},
-			{Event: "part-open", Src: []string{"intermediate"}, Dst: "open"},
-			{Event: "close", Src: []string{"open"}, Dst: "closed"},
-			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
+	fsmUnderTest := NewSafeFsm[LampEvent, LampStatus](
+		LampStatus_Closed,
+		NewTransition([]Transform[LampEvent, LampStatus]{
+			{Event: LampEvent_Open, Src: []LampStatus{LampStatus_Closed}, Dst: LampStatus_Opened},
+			{Event: LampEvent_PartialOpen, Src: []LampStatus{LampStatus_Closed}, Dst: LampStatus_Intermediate},
+			{Event: LampEvent_PartialOpen, Src: []LampStatus{LampStatus_Intermediate}, Dst: LampStatus_Opened},
+			{Event: LampEvent_Close, Src: []LampStatus{LampStatus_Opened}, Dst: LampStatus_Closed},
+			{Event: LampEvent_PartialClose, Src: []LampStatus{LampStatus_Intermediate}, Dst: LampStatus_Closed},
 		}),
 	)
-	got, err := VisualizeMermaid[string, string](FlowChart, fsmUnderTest)
+	got, err := VisualizeMermaid[LampEvent, LampStatus](FlowChart, fsmUnderTest)
 	if err != nil {
 		t.Errorf("got error for visualizing with type MERMAID: %s", err)
 	}
@@ -88,12 +88,12 @@ func Test_MermaidFlowChart(t *testing.T) {
 graph LR
     id0[closed]
     id1[intermediate]
-    id2[open]
+    id2[opened]
 
     id0 --> |open| id2
-    id0 --> |part-open| id1
-    id1 --> |part-close| id0
-    id1 --> |part-open| id2
+    id0 --> |partial-open| id1
+    id1 --> |partial-close| id0
+    id1 --> |partial-open| id2
     id2 --> |close| id0
 
     style id0 fill:#00AA00
@@ -102,41 +102,41 @@ graph LR
 	normalizedWanted := strings.ReplaceAll(wanted, "\n", "")
 	if normalizedGot != normalizedWanted {
 		t.Errorf("build mermaid graph failed. \nwanted \n%s\nand got \n%s\n", wanted, got)
-		fmt.Println([]byte(normalizedGot))
-		fmt.Println([]byte(normalizedWanted))
+		fmt.Println(normalizedGot)
+		fmt.Println(normalizedWanted)
 	}
 }
 
 func Test_MermaidFlowChart_CustomName(t *testing.T) {
-	fsmUnderTest := NewSafeFsm[string, string](
-		"closed",
-		NewTransitionBuilder([]Transform[string, string]{
-			{Event: "open", Src: []string{"closed"}, Dst: "open"},
-			{Event: "part-open", Src: []string{"closed"}, Dst: "intermediate"},
-			{Event: "part-open", Src: []string{"intermediate"}, Dst: "open"},
-			{Event: "close", Src: []string{"open"}, Dst: "closed"},
-			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
+	fsmUnderTest := NewSafeFsm[LampEvent, LampStatus](
+		LampStatus_Closed,
+		NewTransitionBuilder([]Transform[LampEvent, LampStatus]{
+			{Event: LampEvent_Open, Src: []LampStatus{LampStatus_Closed}, Dst: LampStatus_Opened},
+			{Event: LampEvent_PartialOpen, Src: []LampStatus{LampStatus_Closed}, Dst: LampStatus_Intermediate},
+			{Event: LampEvent_PartialOpen, Src: []LampStatus{LampStatus_Intermediate}, Dst: LampStatus_Opened},
+			{Event: LampEvent_Close, Src: []LampStatus{LampStatus_Opened}, Dst: LampStatus_Closed},
+			{Event: LampEvent_PartialClose, Src: []LampStatus{LampStatus_Intermediate}, Dst: LampStatus_Closed},
 		}).
-			Name("this is transition").
+			Name("Lamp FSM").
 			Build(),
 	)
-	got, err := VisualizeMermaid[string, string](FlowChart, fsmUnderTest)
+	got, err := VisualizeMermaid[LampEvent, LampStatus](FlowChart, fsmUnderTest)
 	if err != nil {
 		t.Errorf("got error for visualizing with type MERMAID: %s", err)
 	}
 	wanted := `
 ---
-title: this is transition
+title: Lamp FSM
 ---
 graph LR
     id0[closed]
     id1[intermediate]
-    id2[open]
+    id2[opened]
 
     id0 --> |open| id2
-    id0 --> |part-open| id1
-    id1 --> |part-close| id0
-    id1 --> |part-open| id2
+    id0 --> |partial-open| id1
+    id1 --> |partial-close| id0
+    id1 --> |partial-open| id2
     id2 --> |close| id0
 
     style id0 fill:#00AA00

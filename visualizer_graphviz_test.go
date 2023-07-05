@@ -7,12 +7,12 @@ import (
 )
 
 func Test_Graphviz(t *testing.T) {
-	fsmUnderTest := NewFsm[string, string](
-		"closed",
-		NewTransition([]Transform[string, string]{
-			{Event: "open", Src: []string{"closed"}, Dst: "open"},
-			{Event: "close", Src: []string{"open"}, Dst: "closed"},
-			{Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
+	fsmUnderTest := NewFsm[LampEvent, LampStatus](
+		LampStatus_Closed,
+		NewTransition([]Transform[LampEvent, LampStatus]{
+			{Event: LampEvent_Open, Src: []LampStatus{LampStatus_Closed}, Dst: LampStatus_Opened},
+			{Event: LampEvent_Close, Src: []LampStatus{LampStatus_Opened}, Dst: LampStatus_Closed},
+			{Event: LampEvent_PartialClose, Src: []LampStatus{LampStatus_Intermediate}, Dst: LampStatus_Closed},
 		}),
 	)
 	got, err := fsmUnderTest.Visualize(Graphviz)
@@ -21,13 +21,13 @@ func Test_Graphviz(t *testing.T) {
 	}
 	wanted := `
 digraph fsm {
-    "closed" -> "open" [ label = "open" ];
-    "intermediate" -> "closed" [ label = "part-close" ];
-    "open" -> "closed" [ label = "close" ];
+    "closed" -> "opened" [ label = "open" ];
+    "intermediate" -> "closed" [ label = "partial-close" ];
+    "opened" -> "closed" [ label = "close" ];
 
     "closed";
     "intermediate";
-    "open";
+    "opened";
 }`
 	normalizedGot := strings.ReplaceAll(got, "\n", "")
 	normalizedWanted := strings.ReplaceAll(wanted, "\n", "")
@@ -39,18 +39,18 @@ digraph fsm {
 }
 
 func Test_Graphviz_CustomName(t *testing.T) {
-	fsmUnderTest := NewSafeFsm[string, string](
-		"closed",
-		NewTransitionBuilder([]Transform[string, string]{
-			{Name: "打开", Event: "open", Src: []string{"closed"}, Dst: "open"},
-			{Name: "关闭", Event: "close", Src: []string{"open"}, Dst: "closed"},
-			{Name: "部份关闭", Event: "part-close", Src: []string{"intermediate"}, Dst: "closed"},
+	fsmUnderTest := NewSafeFsm[LampEvent, LampStatus](
+		LampStatus_Closed,
+		NewTransitionBuilder([]Transform[LampEvent, LampStatus]{
+			{Name: formatEvent(LampEvent_Open), Event: LampEvent_Open, Src: []LampStatus{LampStatus_Closed}, Dst: LampStatus_Opened},
+			{Name: formatEvent(LampEvent_Close), Event: LampEvent_Close, Src: []LampStatus{LampStatus_Opened}, Dst: LampStatus_Closed},
+			{Name: formatEvent(LampEvent_PartialClose), Event: LampEvent_PartialClose, Src: []LampStatus{LampStatus_Intermediate}, Dst: LampStatus_Closed},
 		}).
-			Name("开关灯状态转移").
-			StateNames(map[string]string{
-				"intermediate": "intermediate(初始态)",
-				"closed":       "closed(关闭的)",
-				"open":         "open(打开的)",
+			Name("Lamp FSM").
+			StateNames(map[LampStatus]string{
+				LampStatus_Intermediate: formatState(LampStatus_Intermediate),
+				LampStatus_Opened:       formatState(LampStatus_Opened),
+				LampStatus_Closed:       formatState(LampStatus_Closed),
 			}).
 			Build(),
 	)
@@ -61,14 +61,14 @@ func Test_Graphviz_CustomName(t *testing.T) {
 	}
 	wanted := `
 digraph fsm {
-    label="开关灯状态转移"
-    "closed(关闭的)" -> "open(打开的)" [ label = "打开" ];
-    "intermediate(初始态)" -> "closed(关闭的)" [ label = "部份关闭" ];
-    "open(打开的)" -> "closed(关闭的)" [ label = "关闭" ];
+    label="Lamp FSM"
+    ">closed" -> ">opened" [ label = "<open>" ];
+    ">intermediate" -> ">closed" [ label = "<partial-close>" ];
+    ">opened" -> ">closed" [ label = "<close>" ];
 
-    "closed(关闭的)";
-    "intermediate(初始态)";
-    "open(打开的)";
+    ">closed";
+    ">intermediate";
+    ">opened";
 }`
 	normalizedGot := strings.ReplaceAll(got, "\n", "")
 	normalizedWanted := strings.ReplaceAll(wanted, "\n", "")

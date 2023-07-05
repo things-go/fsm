@@ -2,11 +2,41 @@ package fsm
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
 	"golang.org/x/exp/slices"
 )
+
+type LampStatus string
+
+const (
+	LampStatus_Intermediate LampStatus = "intermediate"
+	LampStatus_Opened       LampStatus = "opened"
+	LampStatus_Closed       LampStatus = "closed"
+)
+
+func (l LampStatus) String() string { return string(l) }
+
+type LampEvent string
+
+const (
+	LampEvent_Open         LampEvent = "open"
+	LampEvent_Close        LampEvent = "close"
+	LampEvent_PartialClose LampEvent = "partial-close"
+	LampEvent_PartialOpen  LampEvent = "partial-open"
+)
+
+func (l LampEvent) String() string { return string(l) }
+
+func formatEvent[E fmt.Stringer](e E) string {
+	return fmt.Sprintf("<%s>", e.String())
+}
+
+func formatState[S fmt.Stringer](e S) string {
+	return fmt.Sprintf(">%s", e.String())
+}
 
 func Test_Fsm_Clone(t *testing.T) {
 	test_Fsm_Clone(t, NewSafeFsm[string, string])
