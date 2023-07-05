@@ -75,12 +75,12 @@ const (
 )
 
 func main() {
-	f := fsm.New(
+	f := fsm.NewSafeFsm[MyEvent, MyState](
 		IsClosed,
-		fsm.Transforms[MyEvent, MyState]{
+		fsm.NewTransition([]fsm.Transform[MyEvent, MyState]{
 			{Event: Open, Src: []MyState{IsClosed}, Dst: IsOpen},
 			{Event: Close, Src: []MyState{IsOpen}, Dst: IsClosed},
-		},
+		}),
 	)
 	fmt.Println(f.Current())
 	err := f.Trigger(Open)
@@ -97,7 +97,7 @@ func main() {
 	// closed
 	// opened
 	// closed
-	fmt.Println(fsm.Visualize[MyEvent, MyState](f))
+	fmt.Println(fsm.VisualizeGraphviz[MyEvent, MyState](f))
 	// digraph fsm {
 	//    "closed" -> "opened" [ label = "open" ];
 	//    "opened" -> "closed" [ label = "close" ];
