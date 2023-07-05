@@ -242,7 +242,6 @@ func test_Fsm_TranslateError(t *testing.T, newFsm func(initState LampStatus, ts 
 			t.Error("expected a error <err2>")
 		}
 	}
-
 }
 
 const (
