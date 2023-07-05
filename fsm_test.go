@@ -245,51 +245,67 @@ func test_Fsm_TranslateError(t *testing.T, newFsm func(initState LampStatus, ts 
 
 }
 
+const (
+	eventFirst  = "first"
+	eventSecond = "second"
+	eventReset  = "reset"
+)
+
+const (
+	statusStart      = "start"
+	statusOne        = "one"
+	statusTwo        = "two"
+	statusThree      = "three"
+	statusResetOne   = "reset-one"
+	statusResetTwo   = "reset-two"
+	statusResetThree = "reset-three"
+)
+
 func Test_Fsm_MultipleSources(t *testing.T) {
 	testFsm_MultipleSources(t, NewSafeFsm[string, string])
 	testFsm_MultipleSources(t, NewFsm[string, string])
 }
 func testFsm_MultipleSources(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
-		"one",
+		statusOne,
 		NewTransition([]Transform[string, string]{
-			{Event: "first", Src: []string{"one"}, Dst: "two"},
-			{Event: "second", Src: []string{"two"}, Dst: "three"},
-			{Event: "reset", Src: []string{"one", "two", "three"}, Dst: "one"},
+			{Event: eventFirst, Src: []string{statusOne}, Dst: statusTwo},
+			{Event: eventSecond, Src: []string{statusTwo}, Dst: statusThree},
+			{Event: eventReset, Src: []string{statusOne, statusTwo, statusThree}, Dst: statusOne},
 		}),
 	)
 
-	err := fsm.Trigger("first")
+	err := fsm.Trigger(eventFirst)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	if fsm.Current() != "two" {
+	if fsm.Current() != statusTwo {
 		t.Error("expected state to be 'two'")
 	}
-	err = fsm.Trigger("reset")
+	err = fsm.Trigger(eventReset)
 	if err != nil {
 		t.Errorf("transition failed %v", err)
 	}
-	if fsm.Current() != "one" {
+	if fsm.Current() != statusOne {
 		t.Error("expected state to be 'one'")
 	}
-	err = fsm.Trigger("first")
+	err = fsm.Trigger(eventFirst)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	err = fsm.Trigger("second")
+	err = fsm.Trigger(eventSecond)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	if fsm.Current() != "three" {
-		t.Error("expected state to be 'three'")
+	if fsm.Current() != statusThree {
+		t.Errorf("expected state to be '%s'", statusThree)
 	}
-	err = fsm.Trigger("reset")
+	err = fsm.Trigger(eventReset)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	if fsm.Current() != "one" {
-		t.Error("expected state to be 'one'")
+	if fsm.Current() != statusOne {
+		t.Errorf("expected state to be '%s'", statusOne)
 	}
 }
 func Test_Fsm_MultipleEvents(t *testing.T) {
@@ -298,51 +314,51 @@ func Test_Fsm_MultipleEvents(t *testing.T) {
 }
 func test_Fsm_MultipleEvents(t *testing.T, newFsm func(initState string, ts ITransition[string, string]) IFsm[string, string]) {
 	fsm := newFsm(
-		"start",
+		statusStart,
 		NewTransition([]Transform[string, string]{
-			{Event: "first", Src: []string{"start"}, Dst: "one"},
-			{Event: "second", Src: []string{"start"}, Dst: "two"},
-			{Event: "reset", Src: []string{"one"}, Dst: "reset_one"},
-			{Event: "reset", Src: []string{"two"}, Dst: "reset_two"},
-			{Event: "reset", Src: []string{"reset_one", "reset_two"}, Dst: "start"},
+			{Event: eventFirst, Src: []string{statusStart}, Dst: statusOne},
+			{Event: eventSecond, Src: []string{statusStart}, Dst: statusTwo},
+			{Event: eventReset, Src: []string{statusOne}, Dst: statusResetOne},
+			{Event: eventReset, Src: []string{statusTwo}, Dst: statusResetTwo},
+			{Event: eventReset, Src: []string{statusResetOne, statusResetTwo}, Dst: statusStart},
 		}),
 	)
 
-	err := fsm.Trigger("first")
+	err := fsm.Trigger(eventFirst)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	err = fsm.Trigger("reset")
+	err = fsm.Trigger(eventReset)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	if fsm.Current() != "reset_one" {
-		t.Error("expected state to be 'reset_one'")
+	if fsm.Current() != statusResetOne {
+		t.Errorf("expected state to be '%s'", statusResetOne)
 	}
-	err = fsm.Trigger("reset")
+	err = fsm.Trigger(eventReset)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	if fsm.Current() != "start" {
-		t.Error("expected state to be 'start'")
+	if fsm.Current() != statusStart {
+		t.Errorf("expected state to be '%s'", statusStart)
 	}
 
-	err = fsm.Trigger("second")
+	err = fsm.Trigger(eventSecond)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	err = fsm.Trigger("reset")
+	err = fsm.Trigger(eventReset)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	if fsm.Current() != "reset_two" {
-		t.Error("expected state to be 'reset_two'")
+	if fsm.Current() != statusResetTwo {
+		t.Errorf("expected state to be '%s'", statusResetTwo)
 	}
-	err = fsm.Trigger("reset")
+	err = fsm.Trigger(eventReset)
 	if err != nil {
 		t.Errorf("trigger failed %v", err)
 	}
-	if fsm.Current() != "start" {
-		t.Error("expected state to be 'start'")
+	if fsm.Current() != statusStart {
+		t.Errorf("expected state to be '%s'", statusStart)
 	}
 }
